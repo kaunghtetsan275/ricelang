@@ -77,10 +77,11 @@ SAMPLES: dict[str, list[str]] = {
         "ယ့ၣ်​ရှူး​ခ​ရၱာ်, စီၤ​ဒၤ​ဝံး​အ​ဖဳး, စီၤ​အၤ​ဘြၤ​ဟၣ်​အ​ဖဳး​အ​တဲၤ​အီၣ်​လၤ",
     ],
     "cnh": [
-        "Na dam maw?",
-        "Ka dam",
-        "Lungawi",
-        "Pathian nih van le vawlei a ser hna tikah,",
+        "Hawi le hna Bible background tihi zeitindah kan let hnga?",
+        "Financial abuse hi zeitin dah holh leh ah a tthat bik hnga pls?",
+        "Tukum kha minung soktu tlawmtuk ruangah kai a silo.",
+        "Hi kong ah cathluan chuahpitu ding minung 10 lengkai an si cang, Kanmah Chin miphun chung in ramleng ah Master le Ph D \"kai liomi siseh, ramleng mi in si hna seh, NGOs riantuanmi tbk. in an si lai.",
+        "Hihi tlamtlin khawhnak ah, Sena Galazzi Lian he kan tawlrel cuahmahmi a si.",
     ],
     "cfm": [
         "Dothleng nak ah kan Lung rual lo ruangah Hiram kaipawl dung a sip sung nak si.",
