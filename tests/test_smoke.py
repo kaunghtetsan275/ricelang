@@ -39,6 +39,16 @@ def test_detect_falam_chin():
     assert pds.detect("A hmaisabik ah Pathian in lei le van tla a seemsuah.") == "cfm"
 
 
+def test_detect_pwo_karen():
+    # Pwo Kayin Bible, Gen 1:1
+    assert pds.detect("ယီၩမူၭခိၪအဘၩ့အမံ့ၬနီၪဖၩၭဆၧ်ပဍၧၩ်ဍၧၩ်လီၫ") == "pwo"
+
+
+def test_detect_geba_karen():
+    # Geba Non-Roman NT (kvq), Matt 1:1
+    assert pds.detect("ယ့ၣ်​ရှူး​ခ​ရၱာ်, စီၤ​ဒၤ​ဝံး​အ​ဖဳး, စီၤ​အၤ​ဘြၤ​ဟၣ်​အ​ဖဳး​အ​တဲၤ​အီၣ်​လၤ") == "kvq"
+
+
 def test_zawgyi_roundtrip_to_unicode():
     assert pds.cvt2uni("ထမင္းစားၿပီးၿပီလား") == "ထမင်းစားပြီးပြီလား"
 
