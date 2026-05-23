@@ -98,9 +98,22 @@ INDEX_HTML = """<!doctype html>
   label{display:inline-block;margin-right:.5rem}
   select,button{padding:.3rem .6rem;border:1px solid #888;border-radius:4px;background:#fff;cursor:pointer}
   button{background:#1d4ed8;color:#fff;border-color:#1d4ed8;margin-top:.5rem}
-  pre{background:#f4f4f4;padding:.6rem;border-radius:4px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-size:13px}
-  small{color:#666}
-  a{color:#1d4ed8}
+  small{color:#666} a{color:#1d4ed8}
+
+  /* result containers */
+  .out{margin-top:.6rem;min-height:1.5rem;display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+  .out.text{display:block;background:#f4f4f4;padding:.6rem;border-radius:4px;font-size:15px;word-break:break-word}
+  .err{color:#b91c1c;font-family:ui-monospace,monospace;font-size:13px}
+
+  /* pills */
+  .pill{display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .55rem;border-radius:999px;
+        background:#e0e7ff;color:#1e3a8a;font-size:13px;line-height:1.4;border:1px solid #c7d2fe}
+  .pill .label{font-weight:600;letter-spacing:.02em;text-transform:lowercase}
+  .pill .prob{font-variant-numeric:tabular-nums;color:#475569;font-size:12px}
+  .pill.token{background:#f1f5f9;color:#0f172a;border-color:#e2e8f0;font-family:ui-monospace,SFMono-Regular,monospace}
+  .pill.top{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
+  .pill.top .prob{color:#dbeafe}
+  .count{color:#666;font-size:12px;margin-left:.4rem}
 </style></head><body>
 <h1>ricelang demo <small>v__VERSION__</small></h1>
 <p><small>Interactive API docs at <a href="/docs">/docs</a>. Library docs in <a href="https://github.com/kaunghtetsan275/ricelang">README</a>.</small></p>
@@ -108,17 +121,17 @@ INDEX_HTML = """<!doctype html>
 <h2>detect</h2>
 <section>
   <textarea id="d_in">ထမင်းစားပြီးပြီလား</textarea>
-  <button onclick="call('/detect',{text:val('d_in')},'d_out')">detect</button>
-  <button onclick="call('/predict',{text:val('d_in'),k:5},'d_out')">predict (top 5)</button>
-  <pre id="d_out"></pre>
+  <button onclick="doDetect()">detect</button>
+  <button onclick="doPredict()">predict (top 5)</button>
+  <div id="d_out" class="out"></div>
 </section>
 
 <h2>convert (Burmese encoding)</h2>
 <section>
   <textarea id="c_in">ထမင်းစားပြီးပြီလား</textarea>
-  <button onclick="call('/convert/zg',{text:val('c_in')},'c_out')">→ Zawgyi</button>
-  <button onclick="call('/convert/uni',{text:val('c_in')},'c_out')">→ Unicode</button>
-  <pre id="c_out"></pre>
+  <button onclick="doConvert('zg')">→ Zawgyi</button>
+  <button onclick="doConvert('uni')">→ Unicode</button>
+  <div id="c_out" class="out text"></div>
 </section>
 
 <h2>tokenize</h2>
@@ -136,19 +149,58 @@ INDEX_HTML = """<!doctype html>
         <optgroup label="syllable">__SYL_OPTS__</optgroup>
         <optgroup label="bpe">__BPE_OPTS__</optgroup>
       </select></label>
-    <button onclick="call('/tokenize',{text:val('t_in'),form:sel('t_form'),lang:sel('t_lang')},'t_out')">tokenize</button>
+    <button onclick="doTokenize()">tokenize</button>
   </div>
-  <pre id="t_out"></pre>
+  <div id="t_out" class="out"></div>
 </section>
 
 <script>
-const val = id => document.getElementById(id).value;
-const sel = id => document.getElementById(id).value;
-async function call(url, body, outId) {
-  const out = document.getElementById(outId);
-  out.textContent = "...";
+const $ = id => document.getElementById(id);
+const val = id => $(id).value;
+const sel = id => $(id).value;
+const escape = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+async function post(url, body) {
   const r = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
-  out.textContent = JSON.stringify(await r.json(), null, 2);
+  if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+  return await r.json();
+}
+
+function show(outId, html) { $(outId).innerHTML = html; }
+function err(outId, e) { $(outId).innerHTML = `<div class="err">${escape(e.message)}</div>`; }
+
+async function doDetect() {
+  try { const {label} = await post("/detect", {text: val("d_in")});
+        show("d_out", `<span class="pill top"><span class="label">${escape(label)}</span></span>`); }
+  catch(e) { err("d_out", e); }
+}
+
+async function doPredict() {
+  try {
+    const {predictions} = await post("/predict", {text: val("d_in"), k: 5});
+    const pills = predictions.map((p, i) =>
+      `<span class="pill${i===0?' top':''}"><span class="label">${escape(p.label)}</span>` +
+      `<span class="prob">${(p.prob*100).toFixed(1)}%</span></span>`
+    ).join("");
+    show("d_out", pills);
+  } catch(e) { err("d_out", e); }
+}
+
+async function doConvert(kind) {
+  try {
+    const data = await post(`/convert/${kind}`, {text: val("c_in")});
+    const text = data.zawgyi ?? data.unicode ?? "";
+    show("c_out", escape(text));
+  } catch(e) { err("c_out", e); }
+}
+
+async function doTokenize() {
+  try {
+    const {tokens, count} = await post("/tokenize",
+      {text: val("t_in"), form: sel("t_form"), lang: sel("t_lang")});
+    const pills = tokens.map(t => `<span class="pill token">${escape(t)}</span>`).join("");
+    show("t_out", pills + `<span class="count">${count} tokens</span>`);
+  } catch(e) { err("t_out", e); }
 }
 </script>
 </body></html>"""
