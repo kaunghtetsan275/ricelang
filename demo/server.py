@@ -5,7 +5,7 @@ single-page form-based UI at ``/``. Interactive API docs at ``/docs``.
 
 Run:
 
-    uv run --group demo python demo/server.py
+    uv run --group demo uvicorn demo.server:app --reload --port 8000
 """
 
 from __future__ import annotations
@@ -216,5 +216,8 @@ def index():
 
 
 if __name__ == "__main__":
+    # The canonical way to run this is via `uvicorn` CLI with --reload
+    # (see the docstring). This fallback is a no-reload convenience for
+    # `python demo/server.py`.
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run("demo.server:app", host="127.0.0.1", port=8000, reload=True)

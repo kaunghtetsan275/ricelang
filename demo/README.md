@@ -7,7 +7,7 @@ them in a browser.
 ## Run
 
 ```sh
-uv run --group demo python demo/server.py
+uv run --group demo uvicorn demo.server:app --reload --port 8000
 ```
 
 Then open <http://127.0.0.1:8000/> for the form UI, or
