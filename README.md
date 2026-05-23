@@ -136,7 +136,6 @@ though no native Zawgyi text is available. Disable with
 
 - [x] Add tokenizer for Burmese (syllable and word-level tokenization)
 - [x] Add BPE tokenizer for every supported language + a multilingual one
-- [ ] Add WordPiece tokenizer
 - [ ] Add Part-of-Speech (POS) tagger for Burmese
 - [ ] Add Named-entities Recognition (NER) classifier for Burmese
 - [ ] Add thorough documentation
