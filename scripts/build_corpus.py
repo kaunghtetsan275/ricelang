@@ -127,6 +127,10 @@ def main(argv: list[str] | None = None) -> int:
                    help="don't synthesize zg examples from uni text via cvt2zg")
     p.add_argument("--zg-ratio", type=float, default=1.0,
                    help="number of synthetic zg examples relative to uni count (default 1.0)")
+    p.add_argument("--no-short-augment", dest="short_augment", action="store_false",
+                   help="don't augment training set with truncated copies of each example")
+    p.add_argument("--augment-lengths", type=int, nargs="+", default=[10, 20, 40],
+                   help="character lengths to truncate to (default: 10 20 40)")
     args = p.parse_args(argv)
 
     random.seed(args.seed)
@@ -142,6 +146,22 @@ def main(argv: list[str] | None = None) -> int:
     random.shuffle(examples)
     split = int(len(examples) * (1 - args.valid_fraction))
     train, valid = examples[:split], examples[split:]
+
+    # Short-snippet augmentation: for each training example, also emit
+    # truncated copies so the model learns that short prefixes carry the
+    # signal too. Validation set is left untouched so we keep measuring
+    # full-length accuracy. Only applied to training.
+    if args.short_augment:
+        augmented = []
+        for label, text in train:
+            augmented.append((label, text))
+            for cap in args.augment_lengths:
+                if len(text) > cap:
+                    augmented.append((label, text[:cap]))
+        train = augmented
+        random.shuffle(train)
+        print(f"[augment] short-snippet augmentation produced {len(train):,} training lines "
+              f"(was {split:,})")
 
     train_path = out_dir / "train.txt"
     valid_path = out_dir / "valid.txt"
