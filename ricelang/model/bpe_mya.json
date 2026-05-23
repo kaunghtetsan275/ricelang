@@ -50,7 +50,7 @@
       {
         "type": "Split",
         "pattern": {
-          "Regex": "(?<=[က-႟])(?=[A-Za-z0-9])|(?<=[A-Za-z0-9])(?=[က-႟])"
+          "Regex": "(?<=[က-႟꤀-꤯])(?=[A-Za-z0-9])|(?<=[A-Za-z0-9])(?=[က-႟꤀-꤯])"
         },
         "behavior": "Isolated",
         "invert": false

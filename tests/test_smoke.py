@@ -73,12 +73,28 @@ def test_tokenize_syllable_burmese():
 
 
 def test_tokenize_bpe_burmese():
-    out = pds.tokenize("ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်", form="bpe")
-    # Just sanity-check: BPE should split this into a handful of subwords,
-    # each containing only Burmese characters, and round-tripping by
-    # concatenation should reconstruct the input.
+    out = pds.tokenize("ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်", lang="mya", form="bpe")
     assert 5 <= len(out) <= 20
     assert "".join(out) == "ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်"
+
+
+def test_tokenize_bpe_multilingual():
+    # Multilingual BPE handles every supported script in one tokenizer.
+    out = pds.tokenize("Pathian nih van le vawlei a ser hna tikah", form="bpe")
+    assert "Pathian" in out
+
+
+def test_tokenize_bpe_per_language():
+    # Per-language BPEs exist for each ISO 639-3 code we have data for.
+    for lang in ("mya", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn"):
+        out = pds.tokenize("test", lang=lang, form="bpe")
+        assert isinstance(out, list) and len(out) > 0
+
+
+def test_tokenize_bpe_unknown_lang_falls_back_to_multi():
+    # Unknown lang should fall back to the multilingual BPE rather than raise.
+    out = pds.tokenize("hello world", lang="not_a_lang", form="bpe")
+    assert out == pds.tokenize("hello world", lang="multi", form="bpe")
 
 
 def test_tokenize_word_burmese():

@@ -33,7 +33,16 @@ packages = ["ricelang"]
 [tool.hatch.build.targets.wheel.force-include]
 "ricelang/model/pdsdetect.ftz" = "ricelang/model/pdsdetect.ftz"
 "ricelang/model/tokenizer.crfsuite" = "ricelang/model/tokenizer.crfsuite"
-"ricelang/model/bpe.json" = "ricelang/model/bpe.json"
+"ricelang/model/bpe_cfm.json" = "ricelang/model/bpe_cfm.json"
+"ricelang/model/bpe_cnh.json" = "ricelang/model/bpe_cnh.json"
+"ricelang/model/bpe_ctd.json" = "ricelang/model/bpe_ctd.json"
+"ricelang/model/bpe_eky.json" = "ricelang/model/bpe_eky.json"
+"ricelang/model/bpe_ksw.json" = "ricelang/model/bpe_ksw.json"
+"ricelang/model/bpe_kvq.json" = "ricelang/model/bpe_kvq.json"
+"ricelang/model/bpe_mya.json" = "ricelang/model/bpe_mya.json"
+"ricelang/model/bpe_multi.json" = "ricelang/model/bpe_multi.json"
+"ricelang/model/bpe_pwo.json" = "ricelang/model/bpe_pwo.json"
+"ricelang/model/bpe_shn.json" = "ricelang/model/bpe_shn.json"
 
 [tool.hatch.build.targets.sdist]
 include = ["ricelang", "README.md", "LICENSE"]

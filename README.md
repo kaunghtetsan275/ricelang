@@ -82,15 +82,21 @@ Syllable-level tokenization supports for 4 languages (Burmese, Karen, Shan, Mon)
 Available values for `lang` parameter in `tokenize` function: "mm", "karen", "mon", "shan"
 
 ```sh
-# BPE (Byte-Pair Encoding) subword tokenization for Burmese
-pds.tokenize("ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်", form="bpe")
+# Multilingual BPE — handles every supported script. Default for form="bpe".
+pds.tokenize("Pathian nih van le vawlei a ser hna tikah", form="bpe")
+
+# Per-language BPE — pass an ISO 639-3 lang code that has a bundled model
+pds.tokenize("ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်", lang="mya", form="bpe")
 >> ['ဖေ', 'ဖေ', 'နဲ့', 'မေ', 'မေ', '၏', 'ကျေးဇူး', 'တရား', 'မှာ', 'ကြီးမား', 'လှ', 'ပေ', 'သည်']
 ```
 
-The bundled BPE tokenizer was trained on Burmese Unicode text from the
-corpus (`mya_jsw.txt` + `mya_mmtimes.txt`) with a 16k vocabulary. Useful
-as input to downstream LLM / embedding pipelines that expect subword
-units. Retrain via `scripts/train_bpe.py`.
+BPE tokenizers are bundled for each supported language (`mya`, `ksw`,
+`pwo`, `kvq`, `cnh`, `cfm`, `ctd`, `eky`, `shn`) plus a multilingual one
+(`multi`, 32k vocab) that covers all scripts in a single tokenizer. The
+per-language BPEs have 16k vocab (smaller for tiny corpora like `kvq`)
+and tend to produce slightly tighter splits on their own language;
+`multi` handles code-switching naturally. Retrain via `scripts/train_bpe.py
+--all`.
 
 ## Training the language detector
 
@@ -129,7 +135,7 @@ though no native Zawgyi text is available. Disable with
 ## Future work
 
 - [x] Add tokenizer for Burmese (syllable and word-level tokenization)
-- [x] Add BPE tokenizer for Burmese
+- [x] Add BPE tokenizer for every supported language + a multilingual one
 - [ ] Add WordPiece tokenizer
 - [ ] Add Part-of-Speech (POS) tagger for Burmese
 - [ ] Add Named-entities Recognition (NER) classifier for Burmese
