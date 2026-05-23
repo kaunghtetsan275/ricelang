@@ -29,6 +29,7 @@ BPE_LANGS = ["multi", "mya", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "s
 DETECT_LABELS = ["mya", "zgi", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn"]
 
 LANG_NAMES: dict[str, str] = {
+    # detector / sample / BPE labels (ISO 639-3 codes)
     "mya": "Burmese (Unicode)",
     "zgi": "Burmese (Zawgyi)",
     "ksw": "S'gaw Karen",
@@ -39,6 +40,13 @@ LANG_NAMES: dict[str, str] = {
     "ctd": "Tedim Chin",
     "eky": "Eastern Kayah",
     "shn": "Shan",
+    # special BPE code
+    "multi": "Multilingual",
+    # legacy syllable-tokenizer lang codes
+    "mm": "Burmese",
+    "karen": "Karen",
+    "mon": "Mon",
+    "shan": "Shan",
 }
 
 # Curated short samples — one ~hello/short phrase + one longer sentence per
@@ -188,11 +196,14 @@ INDEX_HTML = """<!doctype html>
   /* pills */
   .pill{display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .55rem;border-radius:999px;
         background:#e0e7ff;color:#1e3a8a;font-size:13px;line-height:1.4;border:1px solid #c7d2fe}
-  .pill .label{font-weight:600;letter-spacing:.02em;text-transform:lowercase}
+  .pill .label{font-weight:600;letter-spacing:.02em}
+  .pill .code{font-variant-numeric:tabular-nums;color:#64748b;font-size:11px;
+              font-family:ui-monospace,SFMono-Regular,monospace;text-transform:lowercase}
   .pill .prob{font-variant-numeric:tabular-nums;color:#475569;font-size:12px}
   .pill.token{background:#f1f5f9;color:#0f172a;border-color:#e2e8f0;font-family:ui-monospace,SFMono-Regular,monospace}
   .pill.top{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
   .pill.top .prob{color:#dbeafe}
+  .pill.top .code{color:#dbeafe}
   .count{color:#666;font-size:12px;margin-left:.4rem}
 </style></head><body>
 <h1>ricelang demo <small>v__VERSION__</small></h1>
@@ -275,9 +286,18 @@ async function post(url, body) {
 function show(outId, html) { $(outId).innerHTML = html; }
 function err(outId, e) { $(outId).innerHTML = `<div class="err">${escape(e.message)}</div>`; }
 
+function langPill(code, {top = false, prob = null} = {}) {
+  const name = LANG_NAMES[code] || code;
+  const probHtml = prob == null ? "" : `<span class="prob">${(prob*100).toFixed(1)}%</span>`;
+  return `<span class="pill${top?' top':''}">` +
+         `<span class="label">${escape(name)}</span>` +
+         `<span class="code">${escape(code)}</span>` +
+         probHtml + `</span>`;
+}
+
 async function doDetect() {
   try { const {label} = await post("/detect", {text: val("d_in")});
-        show("d_out", `<span class="pill top"><span class="label">${escape(label)}</span></span>`); }
+        show("d_out", langPill(label, {top: true})); }
   catch(e) { err("d_out", e); }
 }
 
@@ -285,8 +305,7 @@ async function doPredict() {
   try {
     const {predictions} = await post("/predict", {text: val("d_in"), k: 5});
     const pills = predictions.map((p, i) =>
-      `<span class="pill${i===0?' top':''}"><span class="label">${escape(p.label)}</span>` +
-      `<span class="prob">${(p.prob*100).toFixed(1)}%</span></span>`
+      langPill(p.label, {top: i===0, prob: p.prob})
     ).join("");
     show("d_out", pills);
   } catch(e) { err("d_out", e); }
@@ -325,10 +344,14 @@ async function doTokenize() {
 @app.get("/", response_class=HTMLResponse)
 def index():
     import json
+    def opt(code: str) -> str:
+        name = LANG_NAMES.get(code, code)
+        # "Name (code)" so users see both the human name and the API value
+        return f'<option value="{code}">{name} ({code})</option>'
     page = (INDEX_HTML
             .replace("__VERSION__", rl.__version__)
-            .replace("__SYL_OPTS__", "".join(f"<option>{l}</option>" for l in SYLLABLE_LANGS))
-            .replace("__BPE_OPTS__", "".join(f"<option>{l}</option>" for l in BPE_LANGS))
+            .replace("__SYL_OPTS__", "".join(opt(l) for l in SYLLABLE_LANGS))
+            .replace("__BPE_OPTS__", "".join(opt(l) for l in BPE_LANGS))
             .replace("__ALL_LANGS_JSON__", json.dumps(sorted(SAMPLES)))
             .replace("__LANG_NAMES_JSON__", json.dumps(LANG_NAMES)))
     return page
