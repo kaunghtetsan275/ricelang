@@ -135,8 +135,13 @@ def tokenize(text: str, lang: str = "mm", form: Form = "syllable") -> list[str]:
     if form == "word":
         return _segment_word(text).strip().split()
     if form == "bpe":
-        bpe_lang = lang if lang in {"multi", "mya", "ksw", "pwo", "kvq",
-                                    "cnh", "cfm", "ctd", "eky", "shn"} else "multi"
+        bpe_lang = lang if lang in {
+            "multi",
+            # SE Asian minority
+            "mya", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn",
+            # broader SE / South Asian
+            "eng", "hin", "ind", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
+        } else "multi"
         return _bpe_tokenizer(bpe_lang).encode(text).tokens
 
     pattern = _LANG_TO_RE.get(lang)

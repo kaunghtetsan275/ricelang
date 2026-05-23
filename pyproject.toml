@@ -37,12 +37,23 @@ packages = ["ricelang"]
 "ricelang/model/bpe_cnh.json" = "ricelang/model/bpe_cnh.json"
 "ricelang/model/bpe_ctd.json" = "ricelang/model/bpe_ctd.json"
 "ricelang/model/bpe_eky.json" = "ricelang/model/bpe_eky.json"
+"ricelang/model/bpe_eng.json" = "ricelang/model/bpe_eng.json"
+"ricelang/model/bpe_hin.json" = "ricelang/model/bpe_hin.json"
+"ricelang/model/bpe_ind.json" = "ricelang/model/bpe_ind.json"
+"ricelang/model/bpe_khm.json" = "ricelang/model/bpe_khm.json"
 "ricelang/model/bpe_ksw.json" = "ricelang/model/bpe_ksw.json"
 "ricelang/model/bpe_kvq.json" = "ricelang/model/bpe_kvq.json"
+"ricelang/model/bpe_lao.json" = "ricelang/model/bpe_lao.json"
+"ricelang/model/bpe_msa.json" = "ricelang/model/bpe_msa.json"
 "ricelang/model/bpe_mya.json" = "ricelang/model/bpe_mya.json"
 "ricelang/model/bpe_multi.json" = "ricelang/model/bpe_multi.json"
 "ricelang/model/bpe_pwo.json" = "ricelang/model/bpe_pwo.json"
 "ricelang/model/bpe_shn.json" = "ricelang/model/bpe_shn.json"
+"ricelang/model/bpe_tam.json" = "ricelang/model/bpe_tam.json"
+"ricelang/model/bpe_tgl.json" = "ricelang/model/bpe_tgl.json"
+"ricelang/model/bpe_tha.json" = "ricelang/model/bpe_tha.json"
+"ricelang/model/bpe_vie.json" = "ricelang/model/bpe_vie.json"
+"ricelang/model/bpe_zho.json" = "ricelang/model/bpe_zho.json"
 
 [tool.hatch.build.targets.sdist]
 include = ["ricelang", "README.md", "LICENSE"]

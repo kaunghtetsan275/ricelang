@@ -49,6 +49,24 @@ def test_detect_geba_karen():
     assert pds.detect("ယ့ၣ်​ရှူး​ခ​ရၱာ်, စီၤ​ဒၤ​ဝံး​အ​ဖဳး, စီၤ​အၤ​ဘြၤ​ဟၣ်​အ​ဖဳး​အ​တဲၤ​အီၣ်​လၤ") == "kvq"
 
 
+def test_detect_broader_languages():
+    # Sanity checks for the languages added in v0.3.x. Each is a Gen 1:1
+    # opener from the bundled corpus.
+    cases = [
+        ("eng", "In the beginning God created the heavens and the earth."),
+        ("hin", "आदि में परमेश्वर ने आकाश और पृथ्वी की सृष्टि की।"),
+        ("khm", "នៅដើមដំបូងបង្អស់ ព្រះបានបង្កើតផ្ទៃមេឃ និងផែនដី។"),
+        ("lao", "ໃນປະຖົມການ ພຣະເຈົ້າຊົງສ້າງສະຫວັນແລະແຜ່ນດິນໂລກ."),
+        ("tam", "ஆதியிலே தேவன் வானத்தையும் பூமியையும் சிருஷ்டித்தார்."),
+        ("tha", "ในปฐมกาล พระเจ้าทรงเนรมิตสร้างฟ้าและแผ่นดิน"),
+        ("vie", "Ban đầu Đức Chúa Trời dựng nên trời đất."),
+        ("zho", "起初，神创造天地。"),
+        ("tgl", "Nang pasimula ay nilikha ng Diyos ang langit at ang lupa."),
+    ]
+    for expected, text in cases:
+        assert pds.detect(text) == expected, f"{expected!r} text predicted {pds.detect(text)!r}"
+
+
 def test_zawgyi_roundtrip_to_unicode():
     assert pds.cvt2uni("ထမင္းစားၿပီးၿပီလား") == "ထမင်းစားပြီးပြီလား"
 

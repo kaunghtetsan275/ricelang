@@ -25,11 +25,22 @@ app = FastAPI(
 )
 
 SYLLABLE_LANGS = ["mm", "karen", "mon", "shan"]
-BPE_LANGS = ["multi", "mya", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn"]
-DETECT_LABELS = ["mya", "zgi", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn"]
+BPE_LANGS = [
+    "multi",
+    # SE Asian minority
+    "mya", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn",
+    # broader SE / South Asian
+    "eng", "hin", "ind", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
+]
+DETECT_LABELS = [
+    # SE Asian minority
+    "mya", "zgi", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn",
+    # broader SE / South Asian
+    "eng", "hin", "ind", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
+]
 
 LANG_NAMES: dict[str, str] = {
-    # detector / sample / BPE labels (ISO 639-3 codes)
+    # SE Asian minority
     "mya": "Burmese (Unicode)",
     "zgi": "Burmese (Zawgyi)",
     "ksw": "S'gaw Karen",
@@ -40,6 +51,18 @@ LANG_NAMES: dict[str, str] = {
     "ctd": "Tedim Chin",
     "eky": "Eastern Kayah",
     "shn": "Shan",
+    # broader SE / South Asian
+    "eng": "English",
+    "hin": "Hindi",
+    "ind": "Indonesian",
+    "khm": "Khmer",
+    "lao": "Lao",
+    "msa": "Malay",
+    "tam": "Tamil",
+    "tgl": "Tagalog",
+    "tha": "Thai",
+    "vie": "Vietnamese",
+    "zho": "Chinese",
     # special BPE code
     "multi": "Multilingual",
     # legacy syllable-tokenizer lang codes
@@ -102,6 +125,61 @@ SAMPLES: dict[str, list[str]] = {
         "မႂ်ႇသုင်",
         "ၶွပ်ႈၸႂ်",
         "ၼႂ်းဢိူင်ႇမိူင်းၽူင်း ၸႄႈဝဵင်းတႃႈၶီႈလဵၵ်း ၾႆးမႆႈႁိူၼ်း",
+    ],
+    "eng": [
+        "Hello, how are you?",
+        "In the beginning God created the heavens and the earth.",
+        "For God so loved the world that he gave his one and only Son.",
+    ],
+    "hin": [
+        "नमस्ते",
+        "धन्यवाद",
+        "आदि में परमेश्वर ने आकाश और पृथ्वी की सृष्टि की।",
+    ],
+    "ind": [
+        "Selamat pagi",
+        "Terima kasih banyak",
+        "Pada mulanya Allah menciptakan langit dan bumi.",
+    ],
+    "khm": [
+        "សួស្ដី",
+        "អរគុណច្រើន",
+        "នៅដើមដំបូង​បង្អស់ ព្រះ​បាន​បង្កើត​ផ្ទៃ​មេឃ និង​ផែនដី។",
+    ],
+    "lao": [
+        "ສະບາຍດີ",
+        "ຂອບໃຈຫຼາຍໆ",
+        "ໃນປະຖົມການ ພຣະເຈົ້າຊົງສ້າງສະຫວັນແລະແຜ່ນດິນໂລກ.",
+    ],
+    "msa": [
+        "Selamat petang",
+        "Terima kasih",
+        "Pada mulanya Allah menciptakan langit dan bumi.",
+    ],
+    "tam": [
+        "வணக்கம்",
+        "நன்றி",
+        "ஆதியிலே தேவன் வானத்தையும் பூமியையும் சிருஷ்டித்தார்.",
+    ],
+    "tgl": [
+        "Magandang umaga",
+        "Salamat po",
+        "Nang pasimula ay nilikha ng Diyos ang langit at ang lupa.",
+    ],
+    "tha": [
+        "สวัสดีครับ",
+        "ขอบคุณมากครับ",
+        "ในปฐมกาล พระเจ้าทรงเนรมิตสร้างฟ้าและแผ่นดิน",
+    ],
+    "vie": [
+        "Xin chào",
+        "Cảm ơn rất nhiều",
+        "Ban đầu Đức Chúa Trời dựng nên trời đất.",
+    ],
+    "zho": [
+        "你好",
+        "谢谢",
+        "起初，神创造天地。",
     ],
 }
 

@@ -27,7 +27,12 @@ from tokenizers import Regex, Tokenizer, models, pre_tokenizers, trainers
 
 # Languages we maintain corpus files for. Zawgyi (zgi) is synthesized from
 # mya at corpus-build time and isn't a separate input "language" for BPE.
-LANGS = ["cfm", "cnh", "ctd", "eky", "ksw", "kvq", "mya", "pwo", "shn"]
+LANGS = [
+    # original SE-Asian set
+    "cfm", "cnh", "ctd", "eky", "ksw", "kvq", "mya", "pwo", "shn",
+    # broader SE / South Asian set (added in 0.3.x)
+    "eng", "hin", "ind", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
+]
 
 
 def _resolve_files(corpus_dir: Path, lang: str) -> list[Path]:
@@ -65,12 +70,28 @@ def train_one(corpus_dir: Path, lang: str, out_dir: Path,
     # (Myanmar block + Kayah Li block) and ASCII. For pure-Latin scripts
     # (cnh/cfm/ctd) the boundary rule never fires, so only whitespace
     # splitting applies. For Burmese/Karen/Kayah it isolates loanwords.
+    # Scripts that ricelang covers, all in their own Unicode block:
+    #   Devanagari, Tamil, Thai, Lao, Myanmar, Khmer, CJK, Kayah Li.
+    # The Split rule fires on any transition between these scripts and
+    # ASCII letters/digits, isolating loanwords from native text. For
+    # pure-Latin scripts (eng, cnh, cfm, ctd, ind, msa, tgl, vie) only
+    # the Whitespace pre-tokenizer fires.
+    _SCRIPTS = (
+        r"ऀ-ॿ"   # Devanagari (Hindi)
+        r"஀-௿"   # Tamil
+        r"฀-๿"   # Thai
+        r"຀-໿"   # Lao
+        r"က-႟"   # Myanmar
+        r"ក-៿"   # Khmer
+        r"一-鿿"   # CJK Unified
+        r"꤀-꤯"   # Kayah Li
+    )
     tokenizer.pre_tokenizer = pre_tokenizers.Sequence([
         pre_tokenizers.Whitespace(),
         pre_tokenizers.Split(
             pattern=Regex(
-                r"(?<=[က-႟꤀-꤯])(?=[A-Za-z0-9])"
-                r"|(?<=[A-Za-z0-9])(?=[က-႟꤀-꤯])"
+                f"(?<=[{_SCRIPTS}])(?=[A-Za-z0-9])"
+                f"|(?<=[A-Za-z0-9])(?=[{_SCRIPTS}])"
             ),
             behavior="isolated",
         ),
