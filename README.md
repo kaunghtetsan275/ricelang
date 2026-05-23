@@ -12,26 +12,32 @@ uv add pyidaungsu
 
 ## Usage
 
-### ~~Zawgyi-Unicode detection~~ Language detection (Myanmar <Zawgyi, Unicode>, Karen, Mon, Shan)
-Starting from the pyidaungsu 0.0.9, it does not only detect Zawgyi and Unicode for Myanmar language but also other languages such as Mon, Karen, Shan as well.
+### Language detection
 
-Language detection for Mon and Shan is temporarily disabled starting from 0.1.3 as the accuracy for those languages wasn't as good.
-Supported languages ATM: English, Spanish, French, Chinese, Japanese, Korean, Myanmar (unicode), Myanmar (zawgyi), Karen
+Detects Burmese (Unicode and Zawgyi encodings), S'gaw Karen, Hakha Chin,
+and Kayah Li. Labels follow ISO 639-3 codes (note: `karen` was renamed to
+`ksw` in 0.2.0).
+
+| Label  | Language                  |
+| ------ | ------------------------- |
+| `uni`  | Burmese (Unicode)         |
+| `zg`   | Burmese (Zawgyi)          |
+| `ksw`  | S'gaw Karen               |
+| `cnh`  | Hakha Chin                |
+| `krnn` | Kayah Li                  |
+
+Mon and Shan detection were disabled in 0.1.3 due to dirty training data
+and remain disabled in 0.2.0.
 
 ```sh
 import pyidaungsu as pds
 
-# language detection
 pds.detect("ထမင်းစားပြီးပြီလား")
 >> "uni"
 pds.detect("ထမင္းစားၿပီးၿပီလား")
 >> "zg"
 pds.detect("တၢ်သိၣ်လိတၢ်ဖးလံာ် ကွဲးလံာ်အိၣ်လၢ မ့ရ့ၣ်အစုပူၤလီၤ.")
->> "karen"
-pds.detect("ဇၟာပ်မၞိဟ်ဂှ် ကတဵုဒှ်ကၠုင် ပ္ဍဲကဵုဂကောံမွဲ ဖအိုတ်ရ၊၊")
->> "mon"   # (Mon detection disabled since 0.1.3 due to low accuracy)
-pds.detect("ၼႂ်းဢိူင်ႇမိူင်းၽူင်း ၸႄႈဝဵင်းတႃႈၶီႈလဵၵ်း ၾႆးမႆႈႁိူၼ်း ၵူၼ်းဝၢၼ်ႈ လင်ၼိုင်ႈ")
->> "shan"  # (Shan detection disabled since 0.1.3)
+>> "ksw"
 ```
 
 ### Zawgyi-Unicode conversion
@@ -68,21 +74,37 @@ Available values for `lang` parameter in `tokenize` function: "mm", "karen", "mo
 
 ## Training the language detector
 
-The bundled `pyidaungsu/model/pdsdetect.ftz` is a fastText supervised classifier.
-To retrain it on your own corpus:
+The bundled `pyidaungsu/model/pdsdetect.ftz` is a fastText supervised
+classifier (char n-grams with word n-grams, quantized to ~1.2 MB).
+
+### Reproduce the bundled model
+
+Clone the corpus repo next to this one and run the two scripts:
 
 ```sh
-# Layout: data/train/<lang>/*.txt with one example per line
+# at the same level as pyidaungsu/
+git clone git@github.com:kaunghtetsan275/corpus.git
+
+# build train/valid splits from the corpus
+uv run python scripts/build_corpus.py --corpus ../corpus/scraped_data --out data
+
+# train, evaluate, quantize, and save into the package
 uv run python scripts/train_detector.py \
-    --train-dir data/train \
-    --valid-dir data/valid \
+    --train-file data/train.txt --valid-file data/valid.txt \
     --output pyidaungsu/model/pdsdetect.ftz \
-    --epoch 25 --lr 1.0 --dim 16
+    --epoch 25 --lr 0.5 --dim 16 --word-ngrams 1 --minn 2 --maxn 5
 ```
 
-Alternatively, pass `--train-file` with a file already in fastText format
-(`__label__<lang> <text>` per line). See `scripts/train_detector.py --help`
-for tuning knobs (`--word-ngrams`, `--loss`, `--no-quantize`, ...).
+The corpus builder also synthesizes a `zg` class by running `cvt2zg` over
+the Unicode Burmese examples, so the model can distinguish encodings even
+though no native Zawgyi text is available. Disable with
+`--no-synthesize-zg`.
+
+### Train on your own data
+
+`scripts/train_detector.py` also accepts a directory tree of per-language
+`.txt` files (`--train-dir <dir>` with subdirs `uni/`, `ksw/`, ...) — see
+`scripts/train_detector.py --help` for all knobs.
 
 ## Future work
 

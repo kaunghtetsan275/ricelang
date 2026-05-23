@@ -38,6 +38,7 @@ include = ["pyidaungsu", "README.md", "LICENSE"]
 
 [dependency-groups]
 dev = [
+    "openpyxl>=3.1.5",
     "pytest>=8",
     "ruff>=0.6",
 ]

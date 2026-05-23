@@ -4,8 +4,6 @@ import pyidaungsu as pds
 
 
 def test_detect_unicode_burmese():
-    # Note: the bundled model emits "uni"/"zg" labels, not "mm_uni"/"mm_zg"
-    # as the README claims. Matches behavior of original 0.1.4.
     assert pds.detect("ထမင်းစားပြီးပြီလား") == "uni"
 
 
@@ -14,7 +12,8 @@ def test_detect_zawgyi_burmese():
 
 
 def test_detect_karen():
-    assert pds.detect("တၢ်သိၣ်လိတၢ်ဖးလံာ် ကွဲးလံာ်အိၣ်လၢ မ့ရ့ၣ်အစုပူၤလီၤ.") == "karen"
+    # ISO 639-3 label for S'gaw Karen (was "karen" in the pre-0.2.0 model)
+    assert pds.detect("တၢ်သိၣ်လိတၢ်ဖးလံာ် ကွဲးလံာ်အိၣ်လၢ မ့ရ့ၣ်အစုပူၤလီၤ.") == "ksw"
 
 
 def test_zawgyi_roundtrip_to_unicode():

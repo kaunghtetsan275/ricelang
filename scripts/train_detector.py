@@ -105,7 +105,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--dim", type=int, default=16)
     p.add_argument("--word-ngrams", type=int, default=2)
     p.add_argument("--min-count", type=int, default=1)
+    p.add_argument("--minn", type=int, default=2,
+                   help="min char n-gram length (subword features); essential for whitespace-poor scripts")
+    p.add_argument("--maxn", type=int, default=5, help="max char n-gram length")
     p.add_argument("--loss", default="softmax", choices=["softmax", "ns", "hs", "ova"])
+    p.add_argument("--quantize-cutoff", type=int, default=50_000,
+                   help="vocab cutoff during quantization; lower = smaller model (default 50000)")
     p.add_argument("--no-quantize", action="store_true", help="save full .bin instead of quantized .ftz")
     args = p.parse_args(argv)
 
@@ -127,19 +132,40 @@ def main(argv: list[str] | None = None) -> int:
             wordNgrams=args.word_ngrams,
             minCount=args.min_count,
             loss=args.loss,
+            minn=args.minn,
+            maxn=args.maxn,
         )
         print(f"[train] labels: {sorted(l[len(LABEL_PREFIX):] for l in model.get_labels())}")
 
         if valid_path is not None:
             n, p_at_1, r_at_1 = model.test(str(valid_path))
             print(f"[eval] N={n}  P@1={p_at_1:.4f}  R@1={r_at_1:.4f}")
+            # Per-label confusion summary so class imbalance is visible.
+            per_label: dict[str, list[int]] = {}
+            with open(valid_path, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    true_label, _, text = line.partition(" ")
+                    true_label = true_label[len(LABEL_PREFIX):]
+                    pred = model.predict(text)[0][0][len(LABEL_PREFIX):]
+                    bucket = per_label.setdefault(true_label, [0, 0])
+                    bucket[0] += 1
+                    if pred == true_label:
+                        bucket[1] += 1
+            print("[eval] per-label accuracy:")
+            for label in sorted(per_label):
+                total, correct = per_label[label]
+                print(f"         {label:6s}  {correct:>5d}/{total:<5d}  {correct/total*100:5.1f}%")
 
         if args.no_quantize:
             model.save_model(str(output))
             print(f"[save] wrote unquantized model to {output} ({output.stat().st_size:,} bytes)")
         else:
             # Quantize so we ship a small .ftz like the bundled one (~1.2 MB).
-            model.quantize(input=str(train_path), retrain=True)
+            model.quantize(input=str(train_path), retrain=True,
+                           cutoff=args.quantize_cutoff, qnorm=True)
             model.save_model(str(output))
             print(f"[save] wrote quantized model to {output} ({output.stat().st_size:,} bytes)")
     finally:
