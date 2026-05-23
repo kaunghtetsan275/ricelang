@@ -1,101 +1,126 @@
-import re, os
+"""Tokenization for Burmese, Karen, Mon, and Shan."""
+
+from __future__ import annotations
+
+import re
+from functools import lru_cache
+from importlib.resources import files
+from typing import Literal
+
 import pycrfsuite
 
-class Tokenize:
-    def __init__(self):
-        self.karen_consonant = 'ကခဂဃငစဆၡညတထဒနပဖဘမယရလဝသဟအဧၦ'
-        self.shan_consonant = 'ၵၶငၸသၹၺတထၼပၽၾမယလဝရႁဢၷႀၻၿ'
-        self.mon_consonant = 'ကခဂဃၚစဆဇၛညဋဌဍဎဏတထဒဓနပဖဗဘမယရလဝသဟဠၜအၝ'
-        self.burmese_consonant = 'က-အ'
-        self.others = '၀-၉၊။!-/:-@[-`{-~\s.'
+Lang = Literal["mm", "karen", "mon", "shan"]
+Form = Literal["syllable", "word"]
 
-    def create_char_features(self, sentence, i):
-        features = [
-        'bias',
-        'char=' + sentence[i][0] 
+_KAREN_CONSONANT = "ကခဂဃငစဆၡညတထဒနပဖဘမယရလဝသဟအဧၦ"
+_SHAN_CONSONANT = "ၵၶငၸသၹၺတထၼပၽၾမယလဝရႁဢၷႀၻၿ"
+_MON_CONSONANT = "ကခဂဃၚစဆဇၛညဋဌဍဎဏတထဒဓနပဖဗဘမယရလဝသဟဠၜအၝ"
+_BURMESE_CONSONANT = "က-အ"
+_OTHERS = r"၀-၉၊။!-/:-@[-`{-~\s."
+_BURMESE_OTHERS = r"ဣဤဥဦဧဩဪဿ၌၍၏၀-၉၊။!-/:-@[-`{-~\s.,"
+
+_BURMESE_SYLLABLE_RE = re.compile(
+    f"(?<![္])([{_BURMESE_CONSONANT}])(?![်္])|([{_BURMESE_OTHERS}])"
+)
+_KAREN_SYLLABLE_RE = re.compile(f"([{_KAREN_CONSONANT}])|([{_OTHERS}])")
+_SHAN_SYLLABLE_RE = re.compile(f"([{_SHAN_CONSONANT}])(?![်္])|([{_OTHERS}])")
+_MON_SYLLABLE_RE = re.compile(
+    f"(?<![္])([{_MON_CONSONANT}])(?![်္])|([{_OTHERS}])"
+)
+
+_LATIN_AFTER_BURMESE_RE = re.compile(r"(?<=[က-ၴ])([a-zA-Z0-9])")
+_DIGIT_RUN_RE = re.compile(r"([0-9၀-၉])\s+([0-9၀-၉])\s*")
+_DIGIT_PLUS_RE = re.compile(r"([0-9၀-၉])\s+(\+)")
+
+_LANG_TO_RE = {
+    "mm": _BURMESE_SYLLABLE_RE,
+    "karen": _KAREN_SYLLABLE_RE,
+    "shan": _SHAN_SYLLABLE_RE,
+    "mon": _MON_SYLLABLE_RE,
+}
+
+
+@lru_cache(maxsize=1)
+def _word_tagger() -> pycrfsuite.Tagger:
+    tagger = pycrfsuite.Tagger()
+    model_path = files("pyidaungsu").joinpath("model/tokenizer.crfsuite")
+    tagger.open(str(model_path))
+    return tagger
+
+
+def _char_features(sentence: str, i: int) -> list[str]:
+    features = ["bias", f"char={sentence[i]}"]
+    if i >= 1:
+        features += [
+            f"char-1={sentence[i-1]}",
+            f"char-1:0={sentence[i-1]}{sentence[i]}",
         ]
-        
-        if i >= 1:
-            features.extend([
-                'char-1=' + sentence[i-1][0],
-                'char-1:0=' + sentence[i-1][0] + sentence[i][0],
-            ])
-        else:
-            features.append("BOS")
-            
-        if i >= 2:
-            features.extend([
-                'char-2=' + sentence[i-2][0],
-                'char-2:0=' + sentence[i-2][0] + sentence[i-1][0] + sentence[i][0],
-                'char-2:-1=' + sentence[i-2][0] + sentence[i-1][0],
-            ])
-            
-        if i >= 3:
-            features.extend([
-                'char-3:0=' + sentence[i-3][0] + sentence[i-2][0] + sentence[i-1][0] + sentence[i][0],
-                'char-3:-1=' + sentence[i-3][0] + sentence[i-2][0] + sentence[i-1][0],
-            ])
-            
-            
-        if i + 1 < len(sentence):
-            features.extend([
-                'char+1=' + sentence[i+1][0],
-                'char:+1=' + sentence[i][0] + sentence[i+1][0],
-            ])
-        else:
-            features.append("EOS")
-            
-        if i + 2 < len(sentence):
-            features.extend([
-                'char+2=' + sentence[i+2][0],
-                'char:+2=' + sentence[i][0] + sentence[i+1][0] + sentence[i+2][0],
-                'char+1:+2=' + sentence[i+1][0] + sentence[i+2][0],
-            ])
-            
-        if i + 3 < len(sentence):
-            features.extend([
-                'char:+3=' + sentence[i][0] + sentence[i+1][0] + sentence[i+2][0]+ sentence[i+3][0],
-                'char+1:+3=' + sentence[i+1][0] + sentence[i+2][0] + sentence[i+3][0],
-            ])
-        
-        return features
+    else:
+        features.append("BOS")
+    if i >= 2:
+        features += [
+            f"char-2={sentence[i-2]}",
+            f"char-2:0={sentence[i-2]}{sentence[i-1]}{sentence[i]}",
+            f"char-2:-1={sentence[i-2]}{sentence[i-1]}",
+        ]
+    if i >= 3:
+        features += [
+            f"char-3:0={sentence[i-3]}{sentence[i-2]}{sentence[i-1]}{sentence[i]}",
+            f"char-3:-1={sentence[i-3]}{sentence[i-2]}{sentence[i-1]}",
+        ]
+    n = len(sentence)
+    if i + 1 < n:
+        features += [
+            f"char+1={sentence[i+1]}",
+            f"char:+1={sentence[i]}{sentence[i+1]}",
+        ]
+    else:
+        features.append("EOS")
+    if i + 2 < n:
+        features += [
+            f"char+2={sentence[i+2]}",
+            f"char:+2={sentence[i]}{sentence[i+1]}{sentence[i+2]}",
+            f"char+1:+2={sentence[i+1]}{sentence[i+2]}",
+        ]
+    if i + 3 < n:
+        features += [
+            f"char:+3={sentence[i]}{sentence[i+1]}{sentence[i+2]}{sentence[i+3]}",
+            f"char+1:+3={sentence[i+1]}{sentence[i+2]}{sentence[i+3]}",
+        ]
+    return features
 
-    def create_sentence_features(self, prepared_sentence):
-        return [self.create_char_features(prepared_sentence, i) for i in range(len(prepared_sentence))]
 
-    def segment_sentence(self, tagger, sentence):
-        sent = sentence.replace(" ", "")
-        prediction = tagger.tag(self.create_sentence_features(sent))
-        complete = ""
-        for i, p in enumerate(prediction):
-            if p == "1":
-                complete += " " + sent[i]
-            else:
-                complete += sent[i]
-        return complete
-    
-    def tokenize(self, line, lang='mm', form='syllable'):
+def _segment_word(sentence: str) -> str:
+    sent = sentence.replace(" ", "")
+    features = [_char_features(sent, i) for i in range(len(sent))]
+    prediction = _word_tagger().tag(features)
+    out = []
+    for i, p in enumerate(prediction):
+        if p == "1":
+            out.append(" ")
+        out.append(sent[i])
+    return "".join(out)
 
-        if form=='word':
-            return self.tokenize_word(line,lang,form)
-        if lang=='mm':
-            others = 'ဣဤဥဦဧဩဪဿ၌၍၏၀-၉၊။!-/:-@[-`{-~\s.,'
-            line = re.sub("(?<![္])(["+self.burmese_consonant+"])(?![်္])|(["+others+"])",r" \1\2", line).strip()
-        if lang=='karen':
-            line = re.sub("(["+self.karen_consonant+"])|(["+self.others+"])",r" \1\2", line).strip()
-        if lang=='shan':
-            line = re.sub("(["+self.shan_consonant+"])(?![်္])|(["+self.others+"])",r" \1\2", line).strip()
-        if lang=='mon':
-            line = re.sub("(?<![္])(["+self.mon_consonant+"])(?![်္])|(["+self.others+"])",r" \1\2", line).strip()
 
-        line = re.sub('(?<=[က-ၴ])([a-zA-Z0-9])',r' \1',line)
-        line = re.sub('([0-9၀-၉])\s+([0-9၀-၉])\s*',r'\1\2 ',line)
-        line = re.sub('([0-9၀-၉])\s+(\+)',r'\1 \2 ',line)
+def tokenize(text: str, lang: Lang = "mm", form: Form = "syllable") -> list[str]:
+    """Tokenize `text` into syllables (default) or words.
 
-        return line.split()
-    
-    def tokenize_word(self, line, lang, form):
-        tagger = pycrfsuite.Tagger()
-        model_path = os.path.join(os.path.abspath(os.path.dirname(__file__)),'model/tokenizer.crfsuite')
-        tagger.open(model_path)
-        return self.segment_sentence(tagger,line).strip().split()
+    Word-level tokenization is only supported for Burmese (``lang="mm"``).
+    """
+    if form == "word":
+        return _segment_word(text).strip().split()
+
+    pattern = _LANG_TO_RE.get(lang)
+    if pattern is None:
+        raise ValueError(f"unsupported lang: {lang!r}")
+    line = pattern.sub(r" \1\2", text).strip()
+    line = _LATIN_AFTER_BURMESE_RE.sub(r" \1", line)
+    line = _DIGIT_RUN_RE.sub(r"\1\2 ", line)
+    line = _DIGIT_PLUS_RE.sub(r"\1 \2 ", line)
+    return line.split()
+
+
+# Back-compat: original API exposed a `Tokenize` class.
+class Tokenize:  # pragma: no cover - thin shim
+    def tokenize(self, line: str, lang: Lang = "mm", form: Form = "syllable") -> list[str]:
+        return tokenize(line, lang, form)

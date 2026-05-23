@@ -1,4 +1,4 @@
-# Pyidaungsu (Project discontinued)
+# Pyidaungsu
 
 Python library for Myanmar language. Useful in Natural Language Processing and text preprocessing for Myanmar language.
 
@@ -6,6 +6,8 @@ Python library for Myanmar language. Useful in Natural Language Processing and t
 
 ```sh
 pip install pyidaungsu
+# or, with uv
+uv add pyidaungsu
 ```
 
 ## Usage
@@ -21,22 +23,22 @@ import pyidaungsu as pds
 
 # language detection
 pds.detect("ထမင်းစားပြီးပြီလား")
->> "mm_uni"
+>> "uni"
 pds.detect("ထမင္းစားၿပီးၿပီလား")
->> "mm_zg"
+>> "zg"
 pds.detect("တၢ်သိၣ်လိတၢ်ဖးလံာ် ကွဲးလံာ်အိၣ်လၢ မ့ရ့ၣ်အစုပူၤလီၤ.")
 >> "karen"
 pds.detect("ဇၟာပ်မၞိဟ်ဂှ် ကတဵုဒှ်ကၠုင် ပ္ဍဲကဵုဂကောံမွဲ ဖအိုတ်ရ၊၊")
->> "mon"
+>> "mon"   # (Mon detection disabled since 0.1.3 due to low accuracy)
 pds.detect("ၼႂ်းဢိူင်ႇမိူင်းၽူင်း ၸႄႈဝဵင်းတႃႈၶီႈလဵၵ်း ၾႆးမႆႈႁိူၼ်း ၵူၼ်းဝၢၼ်ႈ လင်ၼိုင်ႈ")
->> "shan"
+>> "shan"  # (Shan detection disabled since 0.1.3)
 ```
 
 ### Zawgyi-Unicode conversion
 
 ```sh
-# convert to zawgyi
-pds.cvt2zgi("ထမင်းစားပြီးပြီလား")
+# convert to zawgyi (cvt2zg, or cvt2zgi alias)
+pds.cvt2zg("ထမင်းစားပြီးပြီလား")
 >> "ထမင္းစားၿပီးၿပီလား"
 
 # convert to unicode
