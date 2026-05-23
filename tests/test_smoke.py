@@ -24,6 +24,21 @@ def test_detect_shan():
     assert pds.detect("ၼႂ်းဢိူင်ႇမိူင်းၽူင်း ၸႄႈဝဵင်းတႃႈၶီႈလဵၵ်း ၾႆးမႆႈႁိူၼ်း") == "shn"
 
 
+def test_detect_hakha_chin():
+    # Lai (Hakha) Common Language Bible, Gen 1:1
+    assert pds.detect("A hramthawk ah, Pathian nih van le vawlei a ser hna tikah,") == "cnh"
+
+
+def test_detect_tedim_chin():
+    # Tedim Bible Revision 2017, Gen 1:1
+    assert pds.detect("A kipat cil-in Pasian in vantung le leitung a piangsak hi.") == "ctd"
+
+
+def test_detect_falam_chin():
+    # Falam Common Language Bible, Gen 1:1
+    assert pds.detect("A hmaisabik ah Pathian in lei le van tla a seemsuah.") == "cfm"
+
+
 def test_zawgyi_roundtrip_to_unicode():
     assert pds.cvt2uni("ထမင္းစားၿပီးၿပီလား") == "ထမင်းစားပြီးပြီလား"
 

@@ -23,7 +23,9 @@ and Kayah Li. Labels follow ISO 639-3 codes (note: `karen` was renamed to
 | `mya`  | Burmese (Unicode)         |
 | `zgi`  | Burmese (Zawgyi)          |
 | `ksw`  | S'gaw Karen               |
-| `cnh`  | Hakha Chin                |
+| `cnh`  | Hakha Chin (Lai)          |
+| `cfm`  | Falam Chin                |
+| `ctd`  | Tedim Chin                |
 | `eky`  | Eastern Kayah             |
 | `shn`  | Shan                      |
 
