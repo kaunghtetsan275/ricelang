@@ -24,7 +24,7 @@ and Kayah Li. Labels follow ISO 639-3 codes (note: `karen` was renamed to
 | `zg`   | Burmese (Zawgyi)          |
 | `ksw`  | S'gaw Karen               |
 | `cnh`  | Hakha Chin                |
-| `krnn` | Kayah Li                  |
+| `eky`  | Eastern Kayah             |
 
 Mon and Shan detection were disabled in 0.1.3 due to dirty training data
 and remain disabled in 0.2.0.

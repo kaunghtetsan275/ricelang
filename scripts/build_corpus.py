@@ -8,7 +8,8 @@ Sources handled
 ---------------
 - ``jsw_cnh.txt``     — already in fastText format, label ``cnh``
 - ``werribee_ksw.txt``— already in fastText format, label ``ksw``
-- ``kayah li.txt``    — already in fastText format, label ``krnn``
+- ``kayah li.txt``    — already in fastText format, relabeled ``krnn`` -> ``eky``
+- ``youversion_eky.txt`` — scraped Eastern Kayah NT (script in scrape_youversion_eky.py)
 - ``jsw_ksw.txt``     — single-blob Karen text → split by ``.``,  label ``ksw``
 - ``jsw_my.txt``      — single-blob Burmese text → split by ``။``, label ``uni``
 - ``mmtimes.xlsx``    — Headline + Paragraph columns,           label ``uni``
@@ -110,7 +111,16 @@ def collect(corpus_dir: Path, synthesize_zg: bool, zg_ratio: float) -> list[tupl
     # Pre-labeled fastText files
     examples += _read_labeled_file(corpus_dir / "jsw_cnh.txt")
     examples += _read_labeled_file(corpus_dir / "werribee_ksw.txt")
-    examples += _read_labeled_file(corpus_dir / "kayah li.txt")
+
+    # "kayah li.txt" uses an invalid `krnn` label and contains the same
+    # Kayah Li script as our YouVersion scrape; relabel to ISO 639-3 `eky`.
+    for label, text in _read_labeled_file(corpus_dir / "kayah li.txt"):
+        examples.append(("eky", text))
+
+    # YouVersion scrape (Eastern Kayah NT, version 3649)
+    youversion_eky = corpus_dir / "youversion_eky.txt"
+    if youversion_eky.exists():
+        examples += _read_labeled_file(youversion_eky)
 
     # Single-blob raw text
     examples += _read_blob(corpus_dir / "jsw_ksw.txt", "ksw", ".")
@@ -121,8 +131,6 @@ def collect(corpus_dir: Path, synthesize_zg: bool, zg_ratio: float) -> list[tupl
                            columns=["Headline", "Paragraph"])
 
     # shannews is intentionally skipped (dirty training data per README history)
-
-    # Normalize krnn-style ISO label: kayah li.txt uses __label__krnn already, fine.
 
     if synthesize_zg:
         uni_examples = [t for lbl, t in examples if lbl == "uni"]
