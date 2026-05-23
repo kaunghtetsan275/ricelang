@@ -14,7 +14,7 @@ _LABEL_PREFIX = "__label__"
 @lru_cache(maxsize=1)
 def _model() -> fasttext.FastText._FastText:
     fasttext.FastText.eprint = lambda x: None
-    model_path = files("pyidaungsu").joinpath("model/pdsdetect.ftz")
+    model_path = files("ricelang").joinpath("model/pdsdetect.ftz")
     return fasttext.load_model(str(model_path))
 
 

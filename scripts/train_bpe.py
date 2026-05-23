@@ -2,13 +2,13 @@
 
 Reads all ``mya_*.txt`` files from the corpus directory, trains a BPE
 tokenizer with the HuggingFace ``tokenizers`` library, and saves the
-resulting tokenizer to ``pyidaungsu/model/bpe.json``.
+resulting tokenizer to ``ricelang/model/bpe.json``.
 
 Usage::
 
     uv run python scripts/train_bpe.py \\
         --corpus ../corpus/data \\
-        --output pyidaungsu/model/bpe.json \\
+        --output ricelang/model/bpe.json \\
         --vocab-size 16000
 """
 
@@ -40,8 +40,8 @@ def main(argv: list[str] | None = None) -> int:
                    help="corpus directory (default: ../corpus/data)")
     p.add_argument("--glob", default="mya_*.txt",
                    help="glob pattern for training files (default: mya_*.txt)")
-    p.add_argument("--output", default="pyidaungsu/model/bpe.json",
-                   help="path to write the tokenizer JSON (default: pyidaungsu/model/bpe.json)")
+    p.add_argument("--output", default="ricelang/model/bpe.json",
+                   help="path to write the tokenizer JSON (default: ricelang/model/bpe.json)")
     p.add_argument("--vocab-size", type=int, default=16000)
     p.add_argument("--min-frequency", type=int, default=2)
     args = p.parse_args(argv)

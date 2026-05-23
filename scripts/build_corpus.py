@@ -29,7 +29,7 @@ Optional ``zgi`` synthesis
 --------------------------
 The detector distinguishes Burmese Unicode (``mya``) from Zawgyi
 (``zgi``). The corpus has no Zawgyi text, so by default we synthesize a
-matched set by running ``pyidaungsu.cvt2zg`` over every ``mya`` example
+matched set by running ``ricelang.cvt2zg`` over every ``mya`` example
 (plus a sampled portion to keep classes balanced). Disable with
 ``--no-synthesize-zg``.
 """
@@ -41,7 +41,7 @@ import random
 import sys
 from pathlib import Path
 
-from pyidaungsu.convert import cvt2zg
+from ricelang.convert import cvt2zg
 
 LABEL_PREFIX = "__label__"
 MIN_LEN = 8  # drop trivially-short fragments

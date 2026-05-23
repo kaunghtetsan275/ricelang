@@ -39,7 +39,7 @@ _NEXT_DATA_RE = re.compile(
     r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', re.DOTALL
 )
 
-USER_AGENT = "Mozilla/5.0 (research scraping; pyidaungsu corpus build)"
+USER_AGENT = "Mozilla/5.0 (research scraping; ricelang corpus build)"
 
 # Chapter counts for every standard Protestant Bible book. We iterate
 # optimistically and skip any book/chapter the version doesn't include

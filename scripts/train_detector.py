@@ -1,7 +1,7 @@
-"""Train the pyidaungsu language-detection model.
+"""Train the ricelang language-detection model.
 
 Trains a fastText supervised classifier, evaluates it (optional), and saves
-a quantized ``.ftz`` model ready to drop into ``pyidaungsu/model/``.
+a quantized ``.ftz`` model ready to drop into ``ricelang/model/``.
 
 Two ways to supply data:
 
@@ -24,7 +24,7 @@ Usage::
     uv run python scripts/train_detector.py \\
         --train-dir data/train \\
         --valid-dir data/valid \\
-        --output pyidaungsu/model/pdsdetect.ftz
+        --output ricelang/model/pdsdetect.ftz
 """
 
 from __future__ import annotations

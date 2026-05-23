@@ -43,7 +43,7 @@ _LANG_TO_RE = {
 @lru_cache(maxsize=1)
 def _word_tagger() -> pycrfsuite.Tagger:
     tagger = pycrfsuite.Tagger()
-    model_path = files("pyidaungsu").joinpath("model/tokenizer.crfsuite")
+    model_path = files("ricelang").joinpath("model/tokenizer.crfsuite")
     tagger.open(str(model_path))
     return tagger
 
@@ -52,7 +52,7 @@ def _word_tagger() -> pycrfsuite.Tagger:
 def _bpe_tokenizer():
     """Lazy-load the bundled BPE tokenizer (trained on Burmese Unicode)."""
     from tokenizers import Tokenizer
-    return Tokenizer.from_file(str(files("pyidaungsu").joinpath("model/bpe.json")))
+    return Tokenizer.from_file(str(files("ricelang").joinpath("model/bpe.json")))
 
 
 def _char_features(sentence: str, i: int) -> list[str]:

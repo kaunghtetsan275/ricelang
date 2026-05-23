@@ -1,6 +1,6 @@
 """Smoke tests mirroring the examples from the README."""
 
-import pyidaungsu as pds
+import ricelang as pds
 
 
 def test_detect_unicode_burmese():

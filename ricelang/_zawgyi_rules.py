@@ -1,6 +1,6 @@
 """Compiled Zawgyi <-> Unicode conversion rules.
 
-Rule data is regenerated verbatim from the original pyidaungsu 0.1.4 source
+Rule data is regenerated verbatim from the original ricelang 0.1.4 source
 as Unicode codepoint escapes. Do not edit by hand. Patterns are precompiled
 at import time.
 """

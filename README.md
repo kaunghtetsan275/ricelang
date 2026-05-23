@@ -1,22 +1,25 @@
-# Pyidaungsu
+# ricelang
 
-Python library for Myanmar language. Useful in Natural Language Processing and text preprocessing for Myanmar language.
+NLP library for Southeast Asian languages — language identification,
+tokenization, and Zawgyi/Unicode conversion. Successor to
+[pyidaungsu](https://pypi.org/project/pyidaungsu/) with an expanded label
+set, full-Bible corpus from YouVersion scrapes, and a BPE tokenizer.
 
 ## Installation
 
 ```sh
-pip install pyidaungsu
+pip install ricelang
 # or, with uv
-uv add pyidaungsu
+uv add ricelang
 ```
 
 ## Usage
 
 ### Language detection
 
-Detects Burmese (Unicode and Zawgyi encodings), S'gaw Karen, Hakha Chin,
-and Kayah Li. Labels follow ISO 639-3 codes (note: `karen` was renamed to
-`ksw` in 0.2.0).
+Detects Burmese (Unicode and Zawgyi encodings), three Karen variants
+(S'gaw, Pwo, Geba), three Chin variants (Hakha, Falam, Tedim), Eastern
+Kayah, and Shan. Labels follow ISO 639-3 codes.
 
 | Label  | Language                  |
 | ------ | ------------------------- |
@@ -36,7 +39,7 @@ disabled in 0.1.3 due to dirty data and re-enabled in 0.2.0 after the
 shannews.org export was reprocessed.
 
 ```sh
-import pyidaungsu as pds
+import ricelang as pds
 
 pds.detect("ထမင်းစားပြီးပြီလား")
 >> "mya"
@@ -91,7 +94,7 @@ units. Retrain via `scripts/train_bpe.py`.
 
 ## Training the language detector
 
-The bundled `pyidaungsu/model/pdsdetect.ftz` is a fastText supervised
+The bundled `ricelang/model/pdsdetect.ftz` is a fastText supervised
 classifier (char n-grams with word n-grams, quantized to ~1.2 MB).
 
 ### Reproduce the bundled model
@@ -99,7 +102,7 @@ classifier (char n-grams with word n-grams, quantized to ~1.2 MB).
 Clone the corpus repo next to this one and run the two scripts:
 
 ```sh
-# at the same level as pyidaungsu/
+# at the same level as ricelang/
 git clone git@github.com:kaunghtetsan275/corpus.git
 
 # build train/valid splits from the corpus
@@ -108,7 +111,7 @@ uv run python scripts/build_corpus.py --corpus ../corpus/data --out data
 # train, evaluate, quantize, and save into the package
 uv run python scripts/train_detector.py \
     --train-file data/train.txt --valid-file data/valid.txt \
-    --output pyidaungsu/model/pdsdetect.ftz \
+    --output ricelang/model/pdsdetect.ftz \
     --epoch 25 --lr 0.5 --dim 16 --word-ngrams 1 --minn 2 --maxn 5
 ```
 
