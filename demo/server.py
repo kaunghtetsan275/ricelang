@@ -28,6 +28,19 @@ SYLLABLE_LANGS = ["mm", "karen", "mon", "shan"]
 BPE_LANGS = ["multi", "mya", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn"]
 DETECT_LABELS = ["mya", "zgi", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn"]
 
+LANG_NAMES: dict[str, str] = {
+    "mya": "Burmese (Unicode)",
+    "zgi": "Burmese (Zawgyi)",
+    "ksw": "S'gaw Karen",
+    "pwo": "Pwo Karen",
+    "kvq": "Geba Karen",
+    "cnh": "Hakha Chin",
+    "cfm": "Falam Chin",
+    "ctd": "Tedim Chin",
+    "eky": "Eastern Kayah",
+    "shn": "Shan",
+}
+
 # Curated short samples — one ~hello/short phrase + one longer sentence per
 # language. The /sample/{lang} endpoint picks one at random.
 SAMPLES: dict[str, list[str]] = {
@@ -161,8 +174,8 @@ INDEX_HTML = """<!doctype html>
   select,button{padding:.3rem .6rem;border:1px solid #888;border-radius:4px;background:#fff;cursor:pointer}
   button{background:#1d4ed8;color:#fff;border-color:#1d4ed8;margin-top:.5rem}
   .samples{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.4rem}
-  .samples button{margin:0;padding:.15rem .5rem;font-size:12px;background:#f1f5f9;color:#334155;
-                  border:1px solid #cbd5e1;text-transform:lowercase;font-family:ui-monospace,monospace}
+  .samples button{margin:0;padding:.15rem .55rem;font-size:12px;background:#f1f5f9;color:#334155;
+                  border:1px solid #cbd5e1}
   .samples button:hover{background:#e0e7ff;border-color:#1d4ed8;color:#1e3a8a}
   .samples .label{font-size:12px;color:#666;align-self:center;margin-right:.2rem}
   small{color:#666} a{color:#1d4ed8}
@@ -230,13 +243,14 @@ const val = id => $(id).value;
 const sel = id => $(id).value;
 
 const ALL_LANGS = __ALL_LANGS_JSON__;
+const LANG_NAMES = __LANG_NAMES_JSON__;
 const CONVERT_LANGS = ["mya", "zgi"];
 
 function buildSamples(rowId, inputId, langs) {
   const row = $(rowId);
   langs.forEach(lang => {
     const btn = document.createElement("button");
-    btn.textContent = lang;
+    btn.textContent = LANG_NAMES[lang] || lang;
     btn.title = `random ${lang} sample`;
     btn.onclick = async () => {
       const r = await fetch(`/sample/${lang}`);
@@ -315,7 +329,8 @@ def index():
             .replace("__VERSION__", rl.__version__)
             .replace("__SYL_OPTS__", "".join(f"<option>{l}</option>" for l in SYLLABLE_LANGS))
             .replace("__BPE_OPTS__", "".join(f"<option>{l}</option>" for l in BPE_LANGS))
-            .replace("__ALL_LANGS_JSON__", json.dumps(sorted(SAMPLES))))
+            .replace("__ALL_LANGS_JSON__", json.dumps(sorted(SAMPLES)))
+            .replace("__LANG_NAMES_JSON__", json.dumps(LANG_NAMES)))
     return page
 
 
