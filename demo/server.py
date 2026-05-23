@@ -10,7 +10,9 @@ Run:
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+import random
+
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
@@ -25,6 +27,58 @@ app = FastAPI(
 SYLLABLE_LANGS = ["mm", "karen", "mon", "shan"]
 BPE_LANGS = ["multi", "mya", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn"]
 DETECT_LABELS = ["mya", "zgi", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn"]
+
+# Curated short samples — one ~hello/short phrase + one longer sentence per
+# language. The /sample/{lang} endpoint picks one at random.
+SAMPLES: dict[str, list[str]] = {
+    "mya": [
+        "မင်္ဂလာပါ",
+        "ထမင်းစားပြီးပြီလား",
+        "ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်",
+        "ဒီနေ့မိုးရွာနေတယ်",
+    ],
+    "zgi": [
+        "မဂၤလာပါ",
+        "ထမင္းစားၿပီးၿပီလား",
+        "ေက်းဇူးတင္ပါတယ္",
+    ],
+    "ksw": [
+        "မ်ဟၤလူၤ",
+        "တၢ်ဘျုးလီၤ",
+        "လူၤစံယၤ အခီၣ်စ့ၣ်တကပၤ တဂ့ၤလၢၤဘၣ်",
+        "ပှၤကီၢ်ယူဒၤဖိတဖၣ်စးထီၣ်ပူာ်ထီၣ်လီၤ",
+    ],
+    "pwo": [
+        "ထါးသၬလၩ",
+        "ယီၩမူၭခိၪအဘၩ့အမံ့ၬနီၪဖၩၭဆၧ်ပဍၧၩ်ဍၧၩ်လီၫ",
+    ],
+    "kvq": [
+        "ယ့ၣ်​ရှူး​ခ​ရၱာ်, စီၤ​ဒၤ​ဝံး​အ​ဖဳး, စီၤ​အၤ​ဘြၤ​ဟၣ်​အ​ဖဳး​အ​တဲၤ​အီၣ်​လၤ",
+    ],
+    "cnh": [
+        "Na dam maw?",
+        "Ka dam",
+        "Lungawi",
+        "Pathian nih van le vawlei a ser hna tikah,",
+    ],
+    "cfm": [
+        "Pathian",
+        "A hmaisabik ah Pathian in lei le van tla a seemsuah.",
+    ],
+    "ctd": [
+        "Pasian",
+        "A kipat cil-in Pasian in vantung le leitung a piangsak hi.",
+    ],
+    "eky": [
+        "ꤞꤤ꤭",
+        "ꤜꤤ꤬ꤣꤧ꤭ꤗꤢ꤬ ꤢ꤬ ꤚꤢ꤭ꤗꤢꤚꤢ꤭ꤒꤢꤩ꤭ ꤛꤢꤩ꤬ꤏꤛꤢꤨꤋꤚꤤ",
+    ],
+    "shn": [
+        "မႂ်ႇသုင်",
+        "ၶွပ်ႈၸႂ်",
+        "ၼႂ်းဢိူင်ႇမိူင်းၽူင်း ၸႄႈဝဵင်းတႃႈၶီႈလဵၵ်း ၾႆးမႆႈႁိူၼ်း",
+    ],
+}
 
 
 class TextIn(BaseModel):
@@ -49,7 +103,15 @@ def info():
         "detect_labels": DETECT_LABELS,
         "syllable_langs": SYLLABLE_LANGS,
         "bpe_langs": BPE_LANGS,
+        "sample_langs": sorted(SAMPLES),
     }
+
+
+@app.get("/sample/{lang}")
+def sample(lang: str):
+    if lang not in SAMPLES:
+        raise HTTPException(404, f"no samples for lang={lang!r}")
+    return {"lang": lang, "text": random.choice(SAMPLES[lang])}
 
 
 @app.post("/detect")
@@ -98,6 +160,11 @@ INDEX_HTML = """<!doctype html>
   label{display:inline-block;margin-right:.5rem}
   select,button{padding:.3rem .6rem;border:1px solid #888;border-radius:4px;background:#fff;cursor:pointer}
   button{background:#1d4ed8;color:#fff;border-color:#1d4ed8;margin-top:.5rem}
+  .samples{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.4rem}
+  .samples button{margin:0;padding:.15rem .5rem;font-size:12px;background:#f1f5f9;color:#334155;
+                  border:1px solid #cbd5e1;text-transform:lowercase;font-family:ui-monospace,monospace}
+  .samples button:hover{background:#e0e7ff;border-color:#1d4ed8;color:#1e3a8a}
+  .samples .label{font-size:12px;color:#666;align-self:center;margin-right:.2rem}
   small{color:#666} a{color:#1d4ed8}
 
   /* result containers */
@@ -120,6 +187,7 @@ INDEX_HTML = """<!doctype html>
 
 <h2>detect</h2>
 <section>
+  <div class="samples" id="d_samples"><span class="label">sample:</span></div>
   <textarea id="d_in">ထမင်းစားပြီးပြီလား</textarea>
   <button onclick="doDetect()">detect</button>
   <button onclick="doPredict()">predict (top 5)</button>
@@ -128,6 +196,7 @@ INDEX_HTML = """<!doctype html>
 
 <h2>convert (Burmese encoding)</h2>
 <section>
+  <div class="samples" id="c_samples"><span class="label">sample:</span></div>
   <textarea id="c_in">ထမင်းစားပြီးပြီလား</textarea>
   <button onclick="doConvert('zg')">→ Zawgyi</button>
   <button onclick="doConvert('uni')">→ Unicode</button>
@@ -136,6 +205,7 @@ INDEX_HTML = """<!doctype html>
 
 <h2>tokenize</h2>
 <section>
+  <div class="samples" id="t_samples"><span class="label">sample:</span></div>
   <textarea id="t_in">ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်</textarea>
   <div style="margin-top:.5rem">
     <label>form:
@@ -158,6 +228,28 @@ INDEX_HTML = """<!doctype html>
 const $ = id => document.getElementById(id);
 const val = id => $(id).value;
 const sel = id => $(id).value;
+
+const ALL_LANGS = __ALL_LANGS_JSON__;
+const CONVERT_LANGS = ["mya", "zgi"];
+
+function buildSamples(rowId, inputId, langs) {
+  const row = $(rowId);
+  langs.forEach(lang => {
+    const btn = document.createElement("button");
+    btn.textContent = lang;
+    btn.title = `random ${lang} sample`;
+    btn.onclick = async () => {
+      const r = await fetch(`/sample/${lang}`);
+      if (!r.ok) return;
+      const {text} = await r.json();
+      $(inputId).value = text;
+    };
+    row.appendChild(btn);
+  });
+}
+buildSamples("d_samples", "d_in", ALL_LANGS);
+buildSamples("c_samples", "c_in", CONVERT_LANGS);
+buildSamples("t_samples", "t_in", ALL_LANGS);
 const escape = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 async function post(url, body) {
@@ -218,10 +310,12 @@ async function doTokenize() {
 
 @app.get("/", response_class=HTMLResponse)
 def index():
+    import json
     page = (INDEX_HTML
             .replace("__VERSION__", rl.__version__)
             .replace("__SYL_OPTS__", "".join(f"<option>{l}</option>" for l in SYLLABLE_LANGS))
-            .replace("__BPE_OPTS__", "".join(f"<option>{l}</option>" for l in BPE_LANGS)))
+            .replace("__BPE_OPTS__", "".join(f"<option>{l}</option>" for l in BPE_LANGS))
+            .replace("__ALL_LANGS_JSON__", json.dumps(sorted(SAMPLES))))
     return page
 
 
