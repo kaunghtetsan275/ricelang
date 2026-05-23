@@ -13,21 +13,22 @@ synthesized at corpus-build time from the ``mya`` Unicode text.
 
 Sources handled
 ---------------
-- ``cnh_jsw.txt``       — already in fastText format, label ``cnh``
-- ``ksw_werribee.txt``  — already in fastText format, label ``ksw``
-- ``eky_kayahli.txt``   — already in fastText format, label ``eky``
-- ``eky_youversion.txt``— scraped Eastern Kayah NT (script: scrape_youversion_eky.py)
-- ``ksw_jsw.txt``       — single-blob Karen text → split by ``.``, label ``ksw``
-- ``mya_jsw.txt``       — single-blob Burmese text → split by ``။``, label ``uni``
-- ``mya_mmtimes.xlsx``  — Headline + Paragraph columns,           label ``uni``
+All ``*.txt`` files are read in fastText format (``__label__X text``).
+- ``cnh_jsw.txt``       — label ``cnh``
+- ``ksw_werribee.txt``  — label ``ksw``
+- ``ksw_jsw.txt``       — label ``ksw``
+- ``eky_kayahli.txt``   — label ``eky``
+- ``eky_youversion.txt``— label ``eky`` (scraped Eastern Kayah NT)
+- ``mya_jsw.txt``       — label ``mya`` (Burmese Unicode)
+- ``mya_mmtimes.xlsx``  — Headline + Paragraph columns, label ``mya``
 - (skipped) ``shn_shannews.xlsx`` — dirty training data per the project README
 - (skipped) Mon         — no data available in this corpus
 
-Optional ``zg`` synthesis
--------------------------
-The original detector distinguished Burmese Unicode (``uni``) from Zawgyi
-(``zg``). The corpus has no Zawgyi text, so by default we synthesize a
-matched set by running ``pyidaungsu.cvt2zg`` over every ``uni`` example
+Optional ``zgi`` synthesis
+--------------------------
+The detector distinguishes Burmese Unicode (``mya``) from Zawgyi
+(``zgi``). The corpus has no Zawgyi text, so by default we synthesize a
+matched set by running ``pyidaungsu.cvt2zg`` over every ``mya`` example
 (plus a sampled portion to keep classes balanced). Disable with
 ``--no-synthesize-zg``.
 """
@@ -36,7 +37,6 @@ from __future__ import annotations
 
 import argparse
 import random
-import re
 import sys
 from pathlib import Path
 
@@ -78,21 +78,6 @@ def _read_labeled_file(path: Path) -> list[tuple[str, str]]:
     return out
 
 
-def _split_blob(text: str, terminators: str) -> list[str]:
-    pattern = "[" + re.escape(terminators) + "]+"
-    return [piece.strip() for piece in re.split(pattern, text) if piece.strip()]
-
-
-def _read_blob(path: Path, label: str, terminators: str) -> list[tuple[str, str]]:
-    raw = path.read_text(encoding="utf-8")
-    out: list[tuple[str, str]] = []
-    for sentence in _split_blob(raw, terminators):
-        example = _emit(label, sentence)
-        if example:
-            out.append(example)
-    return out
-
-
 def _read_xlsx(path: Path, label: str, columns: list[str]) -> list[tuple[str, str]]:
     """Extract text from named columns of a single-sheet xlsx."""
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
@@ -115,37 +100,36 @@ def _read_xlsx(path: Path, label: str, columns: list[str]) -> list[tuple[str, st
 def collect(corpus_dir: Path, synthesize_zg: bool, zg_ratio: float) -> list[tuple[str, str]]:
     examples: list[tuple[str, str]] = []
 
-    # Pre-labeled fastText files
-    examples += _read_labeled_file(corpus_dir / "cnh_jsw.txt")
-    examples += _read_labeled_file(corpus_dir / "ksw_werribee.txt")
-    examples += _read_labeled_file(corpus_dir / "eky_kayahli.txt")
-
-    # YouVersion scrape (Eastern Kayah NT, version 3649)
-    eky_youversion = corpus_dir / "eky_youversion.txt"
-    if eky_youversion.exists():
-        examples += _read_labeled_file(eky_youversion)
-
-    # Single-blob raw text. Burmese files are tagged `uni` (model label),
-    # not `mya` (filename language code) -- the two namespaces diverge for
-    # Burmese because the model distinguishes Unicode vs Zawgyi encoding.
-    examples += _read_blob(corpus_dir / "ksw_jsw.txt", "ksw", ".")
-    examples += _read_blob(corpus_dir / "mya_jsw.txt", "uni", "။")
+    # Pre-labeled fastText files. Filename language code matches the
+    # label (e.g. mya_*.txt -> __label__mya); zgi (Zawgyi-encoded
+    # Burmese) is synthesized from mya text below.
+    for name in (
+        "cnh_jsw.txt",
+        "ksw_werribee.txt",
+        "ksw_jsw.txt",
+        "eky_kayahli.txt",
+        "eky_youversion.txt",
+        "mya_jsw.txt",
+    ):
+        path = corpus_dir / name
+        if path.exists():
+            examples += _read_labeled_file(path)
 
     # xlsx exports
-    examples += _read_xlsx(corpus_dir / "mya_mmtimes.xlsx", "uni",
+    examples += _read_xlsx(corpus_dir / "mya_mmtimes.xlsx", "mya",
                            columns=["Headline", "Paragraph"])
 
     # shn_shannews.xlsx is intentionally skipped (dirty training data).
 
     if synthesize_zg:
-        uni_examples = [t for lbl, t in examples if lbl == "uni"]
-        # Sample to control class balance; default 1.0 = match uni count.
-        target_n = int(len(uni_examples) * zg_ratio)
-        sampled = random.sample(uni_examples, min(target_n, len(uni_examples)))
+        mya_examples = [t for lbl, t in examples if lbl == "mya"]
+        # Sample to control class balance; default 1.0 = match mya count.
+        target_n = int(len(mya_examples) * zg_ratio)
+        sampled = random.sample(mya_examples, min(target_n, len(mya_examples)))
         for text in sampled:
             zg = cvt2zg(text)
             if zg and zg != text:
-                examples.append(("zg", zg))
+                examples.append(("zgi", zg))
 
     return examples
 
@@ -168,8 +152,8 @@ def summarize(examples: list[tuple[str, str]]) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--corpus", default="../corpus/scraped_data",
-                   help="path to scraped_data directory (default: ../corpus/scraped_data)")
+    p.add_argument("--corpus", default="../corpus/data",
+                   help="path to corpus data directory (default: ../corpus/data)")
     p.add_argument("--out", default="data", help="output directory (default: data/)")
     p.add_argument("--valid-fraction", type=float, default=0.1)
     p.add_argument("--seed", type=int, default=42)

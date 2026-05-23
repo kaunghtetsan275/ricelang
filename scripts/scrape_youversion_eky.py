@@ -12,7 +12,7 @@ the corpus repo were sourced.
 Usage::
 
     uv run python scripts/scrape_youversion_eky.py \\
-        --out ../corpus/scraped_data/eky_youversion.txt
+        --out ../corpus/data/eky_youversion.txt
 """
 
 from __future__ import annotations

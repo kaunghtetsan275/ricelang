@@ -20,8 +20,8 @@ and Kayah Li. Labels follow ISO 639-3 codes (note: `karen` was renamed to
 
 | Label  | Language                  |
 | ------ | ------------------------- |
-| `uni`  | Burmese (Unicode)         |
-| `zg`   | Burmese (Zawgyi)          |
+| `mya`  | Burmese (Unicode)         |
+| `zgi`  | Burmese (Zawgyi)          |
 | `ksw`  | S'gaw Karen               |
 | `cnh`  | Hakha Chin                |
 | `eky`  | Eastern Kayah             |
@@ -33,9 +33,9 @@ and remain disabled in 0.2.0.
 import pyidaungsu as pds
 
 pds.detect("ထမင်းစားပြီးပြီလား")
->> "uni"
+>> "mya"
 pds.detect("ထမင္းစားၿပီးၿပီလား")
->> "zg"
+>> "zgi"
 pds.detect("တၢ်သိၣ်လိတၢ်ဖးလံာ် ကွဲးလံာ်အိၣ်လၢ မ့ရ့ၣ်အစုပူၤလီၤ.")
 >> "ksw"
 ```
@@ -86,7 +86,7 @@ Clone the corpus repo next to this one and run the two scripts:
 git clone git@github.com:kaunghtetsan275/corpus.git
 
 # build train/valid splits from the corpus
-uv run python scripts/build_corpus.py --corpus ../corpus/scraped_data --out data
+uv run python scripts/build_corpus.py --corpus ../corpus/data --out data
 
 # train, evaluate, quantize, and save into the package
 uv run python scripts/train_detector.py \

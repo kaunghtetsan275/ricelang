@@ -4,11 +4,11 @@ import pyidaungsu as pds
 
 
 def test_detect_unicode_burmese():
-    assert pds.detect("ထမင်းစားပြီးပြီလား") == "uni"
+    assert pds.detect("ထမင်းစားပြီးပြီလား") == "mya"
 
 
 def test_detect_zawgyi_burmese():
-    assert pds.detect("ထမင္းစားၿပီးၿပီလား") == "zg"
+    assert pds.detect("ထမင္းစားၿပီးၿပီလား") == "zgi"
 
 
 def test_detect_karen():
