@@ -4,17 +4,24 @@ Consolidates the heterogeneous source files (already-labeled .txt, raw
 single-blob .txt, and .xlsx exports) into ``data/train.txt`` and
 ``data/valid.txt`` ready for ``scripts/train_detector.py``.
 
+Corpus file convention
+----------------------
+``<iso-639-3>_<source>.<ext>`` — language code prefix, source as postfix.
+The Burmese files are tagged ``mya`` even though the model emits ``uni``
+(Unicode) vs ``zg`` (Zawgyi) labels; the model's ``zg`` examples are
+synthesized at corpus-build time from the ``mya`` Unicode text.
+
 Sources handled
 ---------------
-- ``jsw_cnh.txt``     — already in fastText format, label ``cnh``
-- ``werribee_ksw.txt``— already in fastText format, label ``ksw``
-- ``kayah li.txt``    — already in fastText format, label ``eky``
-- ``youversion_eky.txt`` — scraped Eastern Kayah NT (script in scrape_youversion_eky.py)
-- ``jsw_ksw.txt``     — single-blob Karen text → split by ``.``,  label ``ksw``
-- ``jsw_my.txt``      — single-blob Burmese text → split by ``။``, label ``uni``
-- ``mmtimes.xlsx``    — Headline + Paragraph columns,           label ``uni``
-- (skipped) ``shannews-org.xlsx`` — dirty training data per the project README
-- (skipped) Mon       — no data available in this corpus
+- ``cnh_jsw.txt``       — already in fastText format, label ``cnh``
+- ``ksw_werribee.txt``  — already in fastText format, label ``ksw``
+- ``eky_kayahli.txt``   — already in fastText format, label ``eky``
+- ``eky_youversion.txt``— scraped Eastern Kayah NT (script: scrape_youversion_eky.py)
+- ``ksw_jsw.txt``       — single-blob Karen text → split by ``.``, label ``ksw``
+- ``mya_jsw.txt``       — single-blob Burmese text → split by ``။``, label ``uni``
+- ``mya_mmtimes.xlsx``  — Headline + Paragraph columns,           label ``uni``
+- (skipped) ``shn_shannews.xlsx`` — dirty training data per the project README
+- (skipped) Mon         — no data available in this corpus
 
 Optional ``zg`` synthesis
 -------------------------
@@ -109,24 +116,26 @@ def collect(corpus_dir: Path, synthesize_zg: bool, zg_ratio: float) -> list[tupl
     examples: list[tuple[str, str]] = []
 
     # Pre-labeled fastText files
-    examples += _read_labeled_file(corpus_dir / "jsw_cnh.txt")
-    examples += _read_labeled_file(corpus_dir / "werribee_ksw.txt")
-    examples += _read_labeled_file(corpus_dir / "kayah li.txt")
+    examples += _read_labeled_file(corpus_dir / "cnh_jsw.txt")
+    examples += _read_labeled_file(corpus_dir / "ksw_werribee.txt")
+    examples += _read_labeled_file(corpus_dir / "eky_kayahli.txt")
 
     # YouVersion scrape (Eastern Kayah NT, version 3649)
-    youversion_eky = corpus_dir / "youversion_eky.txt"
-    if youversion_eky.exists():
-        examples += _read_labeled_file(youversion_eky)
+    eky_youversion = corpus_dir / "eky_youversion.txt"
+    if eky_youversion.exists():
+        examples += _read_labeled_file(eky_youversion)
 
-    # Single-blob raw text
-    examples += _read_blob(corpus_dir / "jsw_ksw.txt", "ksw", ".")
-    examples += _read_blob(corpus_dir / "jsw_my.txt", "uni", "။")
+    # Single-blob raw text. Burmese files are tagged `uni` (model label),
+    # not `mya` (filename language code) -- the two namespaces diverge for
+    # Burmese because the model distinguishes Unicode vs Zawgyi encoding.
+    examples += _read_blob(corpus_dir / "ksw_jsw.txt", "ksw", ".")
+    examples += _read_blob(corpus_dir / "mya_jsw.txt", "uni", "။")
 
     # xlsx exports
-    examples += _read_xlsx(corpus_dir / "mmtimes.xlsx", "uni",
+    examples += _read_xlsx(corpus_dir / "mya_mmtimes.xlsx", "uni",
                            columns=["Headline", "Paragraph"])
 
-    # shannews is intentionally skipped (dirty training data per README history)
+    # shn_shannews.xlsx is intentionally skipped (dirty training data).
 
     if synthesize_zg:
         uni_examples = [t for lbl, t in examples if lbl == "uni"]
