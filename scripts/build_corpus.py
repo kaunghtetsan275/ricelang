@@ -8,7 +8,7 @@ Sources handled
 ---------------
 - ``jsw_cnh.txt``     — already in fastText format, label ``cnh``
 - ``werribee_ksw.txt``— already in fastText format, label ``ksw``
-- ``kayah li.txt``    — already in fastText format, relabeled ``krnn`` -> ``eky``
+- ``kayah li.txt``    — already in fastText format, label ``eky``
 - ``youversion_eky.txt`` — scraped Eastern Kayah NT (script in scrape_youversion_eky.py)
 - ``jsw_ksw.txt``     — single-blob Karen text → split by ``.``,  label ``ksw``
 - ``jsw_my.txt``      — single-blob Burmese text → split by ``။``, label ``uni``
@@ -111,11 +111,7 @@ def collect(corpus_dir: Path, synthesize_zg: bool, zg_ratio: float) -> list[tupl
     # Pre-labeled fastText files
     examples += _read_labeled_file(corpus_dir / "jsw_cnh.txt")
     examples += _read_labeled_file(corpus_dir / "werribee_ksw.txt")
-
-    # "kayah li.txt" uses an invalid `krnn` label and contains the same
-    # Kayah Li script as our YouVersion scrape; relabel to ISO 639-3 `eky`.
-    for label, text in _read_labeled_file(corpus_dir / "kayah li.txt"):
-        examples.append(("eky", text))
+    examples += _read_labeled_file(corpus_dir / "kayah li.txt")
 
     # YouVersion scrape (Eastern Kayah NT, version 3649)
     youversion_eky = corpus_dir / "youversion_eky.txt"
