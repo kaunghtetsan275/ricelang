@@ -83,8 +83,11 @@ SAMPLES: dict[str, list[str]] = {
         "Pathian nih van le vawlei a ser hna tikah,",
     ],
     "cfm": [
-        "Pathian",
-        "A hmaisabik ah Pathian in lei le van tla a seemsuah.",
+        "Dothleng nak ah kan Lung rual lo ruangah Hiram kaipawl dung a sip sung nak si.",
+        "CHIN AI & Transalate App cu Android & ISO Phone hmangtu hrang aw download dan ding a DOTDOT a um mi siar hmaisa ta in hmang nuam aw.",
+        "Laitlang thlatang khawsik",
+        "kan zuk tlang mi a hlon maw si",
+        "PATHIAN lam hruainak in Chin kumthar kan thleng leh sal ih kan zaten dam le cak in kan um cio maw?",
     ],
     "ctd": [
         "Pasian",
