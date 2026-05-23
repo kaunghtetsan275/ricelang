@@ -1,18 +1,26 @@
-"""Scrape Eastern Kayah Shadaw Dialect NT (+ Genesis) from YouVersion.
+"""Scrape a YouVersion Bible into fastText format.
 
-YouVersion version 3649 (``eky-Kali-MM``, published by The Seed Company) is
-the only sizable freely-readable Eastern Kayah text on the open web.
-The pages are server-rendered HTML with ``data-usfm`` verse markers, so we
-can extract one verse per line without JavaScript execution.
+Pages are server-rendered HTML with verse text inside the ``__NEXT_DATA__``
+JSON blob at ``props.pageProps.chapterInfo.content``. Each verse carries a
+``data-usfm`` attribute, so we extract one verse per line without
+JavaScript execution.
 
-Note: the text is copyright by Christian Far East Ministry; this is a
-research-use scrape only, mirroring how the existing ``jsw_*.txt`` files in
+Note: Bible translations on YouVersion are copyright their publishers
+(Seed Company, Bible Society of Myanmar, etc.). This script is for
+research use only, mirroring how the existing ``*_jsw.txt`` files in
 the corpus repo were sourced.
 
 Usage::
 
-    uv run python scripts/scrape_youversion_eky.py \\
+    # Eastern Kayah NT (Seed Company, version 3649)
+    uv run python scripts/scrape_youversion.py \\
+        --version 3649 --label eky \\
         --out ../corpus/data/eky_youversion.txt
+
+    # Hakha Chin full Bible (Bible Society of Myanmar, version 327)
+    uv run python scripts/scrape_youversion.py \\
+        --version 327 --label cnh \\
+        --out ../corpus/data/cnh_youversion.txt
 """
 
 from __future__ import annotations
@@ -31,15 +39,23 @@ _NEXT_DATA_RE = re.compile(
     r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', re.DOTALL
 )
 
-VERSION_ID = 3649
-BASE = f"https://www.bible.com/bible/{VERSION_ID}"
 USER_AGENT = "Mozilla/5.0 (research scraping; pyidaungsu corpus build)"
 
-# Chapter counts for the books we expect this translation to include
-# (NT plus Genesis per the YouVersion listing). We iterate optimistically
-# and skip any book/chapter that 404s, so over-listing is harmless.
+# Chapter counts for every standard Protestant Bible book. We iterate
+# optimistically and skip any book/chapter the version doesn't include
+# (404 or empty chapterInfo), so over-listing is harmless.
 BOOKS: dict[str, int] = {
-    "GEN": 50,
+    # Old Testament
+    "GEN": 50, "EXO": 40, "LEV": 27, "NUM": 36, "DEU": 34,
+    "JOS": 24, "JDG": 21, "RUT": 4,
+    "1SA": 31, "2SA": 24, "1KI": 22, "2KI": 25,
+    "1CH": 29, "2CH": 36, "EZR": 10, "NEH": 13, "EST": 10,
+    "JOB": 42, "PSA": 150, "PRO": 31, "ECC": 12, "SNG": 8,
+    "ISA": 66, "JER": 52, "LAM": 5, "EZK": 48, "DAN": 12,
+    "HOS": 14, "JOL": 3, "AMO": 9, "OBA": 1, "JON": 4,
+    "MIC": 7, "NAM": 3, "HAB": 3, "ZEP": 3, "HAG": 2,
+    "ZEC": 14, "MAL": 4,
+    # New Testament
     "MAT": 28, "MRK": 16, "LUK": 24, "JHN": 21, "ACT": 28,
     "ROM": 16, "1CO": 16, "2CO": 13, "GAL": 6, "EPH": 6,
     "PHP": 4, "COL": 4, "1TH": 5, "2TH": 3, "1TI": 6,
@@ -49,8 +65,8 @@ BOOKS: dict[str, int] = {
 }
 
 
-def fetch(session: requests.Session, book: str, chapter: int) -> str | None:
-    url = f"{BASE}/{book}.{chapter}"
+def fetch(session: requests.Session, version_id: int, book: str, chapter: int) -> str | None:
+    url = f"https://www.bible.com/bible/{version_id}/{book}.{chapter}"
     resp = session.get(url, timeout=20)
     if resp.status_code == 404:
         return None
@@ -103,10 +119,11 @@ def extract_verses(page_html: str, book: str, chapter: int) -> list[tuple[str, s
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--out", required=True, help="output .txt path (fastText format, __label__eky per line)")
-    p.add_argument("--label", default="eky", help="label to prefix each verse with (default: eky)")
-    p.add_argument("--sleep", type=float, default=0.5, help="seconds between requests (be polite)")
-    p.add_argument("--books", nargs="*", help="restrict to these book codes (default: all NT + GEN)")
+    p.add_argument("--version", type=int, required=True, help="YouVersion bible version ID (e.g. 327 for Hakha Chin, 3649 for Eastern Kayah)")
+    p.add_argument("--label", required=True, help="ISO 639-3 label to prefix each verse with (e.g. cnh, eky)")
+    p.add_argument("--out", required=True, help="output .txt path (fastText format, one verse per line)")
+    p.add_argument("--sleep", type=float, default=0.4, help="seconds between requests (be polite)")
+    p.add_argument("--books", nargs="*", help="restrict to these USFM book codes (default: all OT+NT)")
     args = p.parse_args(argv)
 
     books = {b: BOOKS[b] for b in args.books} if args.books else BOOKS
@@ -123,7 +140,7 @@ def main(argv: list[str] | None = None) -> int:
             book_count = 0
             book_missing = 0
             for ch in range(1, n_chapters + 1):
-                html = fetch(session, book, ch)
+                html = fetch(session, args.version, book, ch)
                 if html is None:
                     book_missing += 1
                     # If the first chapter of a book is missing, the book

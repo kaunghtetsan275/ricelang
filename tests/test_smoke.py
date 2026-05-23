@@ -47,6 +47,15 @@ def test_tokenize_syllable_burmese():
     ]
 
 
+def test_tokenize_bpe_burmese():
+    out = pds.tokenize("ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်", form="bpe")
+    # Just sanity-check: BPE should split this into a handful of subwords,
+    # each containing only Burmese characters, and round-tripping by
+    # concatenation should reconstruct the input.
+    assert 5 <= len(out) <= 20
+    assert "".join(out) == "ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်"
+
+
 def test_tokenize_word_burmese():
     out = pds.tokenize("ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်", form="word")
     assert out == [

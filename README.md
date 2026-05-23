@@ -74,6 +74,17 @@ pds.tokenize("ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရာ
 Syllable-level tokenization supports for 4 languages (Burmese, Karen, Shan, Mon). Word-level tokenization supports only Burmese currently.</br>
 Available values for `lang` parameter in `tokenize` function: "mm", "karen", "mon", "shan"
 
+```sh
+# BPE (Byte-Pair Encoding) subword tokenization for Burmese
+pds.tokenize("ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်", form="bpe")
+>> ['ဖေ', 'ဖေ', 'နဲ့', 'မေ', 'မေ', '၏', 'ကျေးဇူး', 'တရား', 'မှာ', 'ကြီးမား', 'လှ', 'ပေ', 'သည်']
+```
+
+The bundled BPE tokenizer was trained on Burmese Unicode text from the
+corpus (`mya_jsw.txt` + `mya_mmtimes.txt`) with a 16k vocabulary. Useful
+as input to downstream LLM / embedding pipelines that expect subword
+units. Retrain via `scripts/train_bpe.py`.
+
 ## Training the language detector
 
 The bundled `pyidaungsu/model/pdsdetect.ftz` is a fastText supervised
@@ -110,8 +121,9 @@ though no native Zawgyi text is available. Disable with
 
 ## Future work
 
-- [x] Add tokenizer for Burmese (Syllabel and word-level tokenization)
-- [ ] Add more tokenizer (BPE, WordPiece etc.)
+- [x] Add tokenizer for Burmese (syllable and word-level tokenization)
+- [x] Add BPE tokenizer for Burmese
+- [ ] Add WordPiece tokenizer
 - [ ] Add Part-of-Speech (POS) tagger for Burmese
 - [ ] Add Named-entities Recognition (NER) classifier for Burmese
 - [ ] Add thorough documentation

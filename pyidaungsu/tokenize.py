@@ -10,7 +10,7 @@ from typing import Literal
 import pycrfsuite
 
 Lang = Literal["mm", "karen", "mon", "shan"]
-Form = Literal["syllable", "word"]
+Form = Literal["syllable", "word", "bpe"]
 
 _KAREN_CONSONANT = "ကခဂဃငစဆၡညတထဒနပဖဘမယရလဝသဟအဧၦ"
 _SHAN_CONSONANT = "ၵၶငၸသၹၺတထၼပၽၾမယလဝရႁဢၷႀၻၿ"
@@ -46,6 +46,13 @@ def _word_tagger() -> pycrfsuite.Tagger:
     model_path = files("pyidaungsu").joinpath("model/tokenizer.crfsuite")
     tagger.open(str(model_path))
     return tagger
+
+
+@lru_cache(maxsize=1)
+def _bpe_tokenizer():
+    """Lazy-load the bundled BPE tokenizer (trained on Burmese Unicode)."""
+    from tokenizers import Tokenizer
+    return Tokenizer.from_file(str(files("pyidaungsu").joinpath("model/bpe.json")))
 
 
 def _char_features(sentence: str, i: int) -> list[str]:
@@ -103,12 +110,17 @@ def _segment_word(sentence: str) -> str:
 
 
 def tokenize(text: str, lang: Lang = "mm", form: Form = "syllable") -> list[str]:
-    """Tokenize `text` into syllables (default) or words.
+    """Tokenize `text` into syllables (default), words, or BPE subwords.
 
-    Word-level tokenization is only supported for Burmese (``lang="mm"``).
+    - ``form="syllable"`` — regex-based syllable split (Burmese, Karen, Mon, Shan)
+    - ``form="word"`` — CRF-based word segmentation (Burmese only)
+    - ``form="bpe"`` — Byte-Pair Encoding subwords (trained on Burmese; the
+      ``lang`` argument is ignored)
     """
     if form == "word":
         return _segment_word(text).strip().split()
+    if form == "bpe":
+        return _bpe_tokenizer().encode(text).tokens
 
     pattern = _LANG_TO_RE.get(lang)
     if pattern is None:
