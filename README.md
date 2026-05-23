@@ -25,9 +25,11 @@ and Kayah Li. Labels follow ISO 639-3 codes (note: `karen` was renamed to
 | `ksw`  | S'gaw Karen               |
 | `cnh`  | Hakha Chin                |
 | `eky`  | Eastern Kayah             |
+| `shn`  | Shan                      |
 
-Mon and Shan detection were disabled in 0.1.3 due to dirty training data
-and remain disabled in 0.2.0.
+Mon detection remains disabled (no training data available). Shan was
+disabled in 0.1.3 due to dirty data and re-enabled in 0.2.0 after the
+shannews.org export was reprocessed.
 
 ```sh
 import pyidaungsu as pds

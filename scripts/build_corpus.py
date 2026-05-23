@@ -13,15 +13,16 @@ synthesized at corpus-build time from the ``mya`` Unicode text.
 
 Sources handled
 ---------------
-All ``*.txt`` files are read in fastText format (``__label__X text``).
-- ``cnh_jsw.txt``       — label ``cnh``
-- ``ksw_werribee.txt``  — label ``ksw``
-- ``ksw_jsw.txt``       — label ``ksw``
-- ``eky_kayahli.txt``   — label ``eky``
-- ``eky_youversion.txt``— label ``eky`` (scraped Eastern Kayah NT)
-- ``mya_jsw.txt``       — label ``mya`` (Burmese Unicode)
-- ``mya_mmtimes.xlsx``  — Headline + Paragraph columns, label ``mya``
-- (skipped) ``shn_shannews.xlsx`` — dirty training data per the project README
+Every file in the corpus directory is in fastText format
+(``__label__X text``). The convention is ``<iso-639-3>_<source>.txt``.
+- ``cnh_jsw.txt``       — Hakha Chin (JW.org)
+- ``ksw_werribee.txt``  — S'gaw Karen (Werribee Karen Bible)
+- ``ksw_jsw.txt``       — S'gaw Karen (JW.org)
+- ``eky_kayahli.txt``   — Eastern Kayah (small sample)
+- ``eky_youversion.txt``— Eastern Kayah NT (YouVersion 3649)
+- ``mya_jsw.txt``       — Burmese Unicode (JW.org)
+- ``mya_mmtimes.txt``   — Burmese Unicode (Myanmar Times)
+- ``shn_shannews.txt``  — Shan (shannews.org)
 - (skipped) Mon         — no data available in this corpus
 
 Optional ``zgi`` synthesis
@@ -39,8 +40,6 @@ import argparse
 import random
 import sys
 from pathlib import Path
-
-import openpyxl
 
 from pyidaungsu.convert import cvt2zg
 
@@ -78,48 +77,15 @@ def _read_labeled_file(path: Path) -> list[tuple[str, str]]:
     return out
 
 
-def _read_xlsx(path: Path, label: str, columns: list[str]) -> list[tuple[str, str]]:
-    """Extract text from named columns of a single-sheet xlsx."""
-    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
-    ws = wb[wb.sheetnames[0]]
-    rows = ws.iter_rows(values_only=True)
-    header = next(rows)
-    idxs = [header.index(c) for c in columns]
-    out: list[tuple[str, str]] = []
-    for row in rows:
-        for i in idxs:
-            cell = row[i] if i < len(row) else None
-            if not cell:
-                continue
-            example = _emit(label, str(cell))
-            if example:
-                out.append(example)
-    return out
-
-
 def collect(corpus_dir: Path, synthesize_zg: bool, zg_ratio: float) -> list[tuple[str, str]]:
     examples: list[tuple[str, str]] = []
 
-    # Pre-labeled fastText files. Filename language code matches the
-    # label (e.g. mya_*.txt -> __label__mya); zgi (Zawgyi-encoded
-    # Burmese) is synthesized from mya text below.
-    for name in (
-        "cnh_jsw.txt",
-        "ksw_werribee.txt",
-        "ksw_jsw.txt",
-        "eky_kayahli.txt",
-        "eky_youversion.txt",
-        "mya_jsw.txt",
-    ):
-        path = corpus_dir / name
-        if path.exists():
-            examples += _read_labeled_file(path)
-
-    # xlsx exports
-    examples += _read_xlsx(corpus_dir / "mya_mmtimes.xlsx", "mya",
-                           columns=["Headline", "Paragraph"])
-
-    # shn_shannews.xlsx is intentionally skipped (dirty training data).
+    # Read every <lang>_<source>.txt file in the corpus directory.
+    # Filename language code matches the label (e.g. mya_*.txt ->
+    # __label__mya). The zgi label (Zawgyi-encoded Burmese) is synthesized
+    # from mya text below since the corpus has no native Zawgyi data.
+    for path in sorted(corpus_dir.glob("*.txt")):
+        examples += _read_labeled_file(path)
 
     if synthesize_zg:
         mya_examples = [t for lbl, t in examples if lbl == "mya"]

@@ -39,7 +39,6 @@ include = ["pyidaungsu", "README.md", "LICENSE"]
 [dependency-groups]
 dev = [
     "beautifulsoup4>=4.14.3",
-    "openpyxl>=3.1.5",
     "pytest>=8",
     "requests>=2.32.5",
     "ruff>=0.6",
