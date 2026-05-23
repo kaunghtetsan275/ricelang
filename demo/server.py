@@ -194,11 +194,21 @@ async function doConvert(kind) {
   } catch(e) { err("c_out", e); }
 }
 
+// Stable hash so identical tokens get identical colors across the row.
+function tokenColor(t) {
+  let h = 0;
+  for (const c of t) h = ((h * 31 + c.charCodeAt(0)) >>> 0) % 360;
+  return {bg: `hsl(${h}, 65%, 90%)`, fg: `hsl(${h}, 55%, 25%)`, br: `hsl(${h}, 45%, 72%)`};
+}
+
 async function doTokenize() {
   try {
     const {tokens, count} = await post("/tokenize",
       {text: val("t_in"), form: sel("t_form"), lang: sel("t_lang")});
-    const pills = tokens.map(t => `<span class="pill token">${escape(t)}</span>`).join("");
+    const pills = tokens.map(t => {
+      const c = tokenColor(t);
+      return `<span class="pill token" style="background:${c.bg};color:${c.fg};border-color:${c.br}">${escape(t)}</span>`;
+    }).join("");
     show("t_out", pills + `<span class="count">${count} tokens</span>`);
   } catch(e) { err("t_out", e); }
 }
