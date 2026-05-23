@@ -66,6 +66,24 @@ pds.tokenize("ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရာ
 Syllable-level tokenization supports for 4 languages (Burmese, Karen, Shan, Mon). Word-level tokenization supports only Burmese currently.</br>
 Available values for `lang` parameter in `tokenize` function: "mm", "karen", "mon", "shan"
 
+## Training the language detector
+
+The bundled `pyidaungsu/model/pdsdetect.ftz` is a fastText supervised classifier.
+To retrain it on your own corpus:
+
+```sh
+# Layout: data/train/<lang>/*.txt with one example per line
+uv run python scripts/train_detector.py \
+    --train-dir data/train \
+    --valid-dir data/valid \
+    --output pyidaungsu/model/pdsdetect.ftz \
+    --epoch 25 --lr 1.0 --dim 16
+```
+
+Alternatively, pass `--train-file` with a file already in fastText format
+(`__label__<lang> <text>` per line). See `scripts/train_detector.py --help`
+for tuning knobs (`--word-ngrams`, `--loss`, `--no-quantize`, ...).
+
 ## Future work
 
 - [x] Add tokenizer for Burmese (Syllabel and word-level tokenization)
