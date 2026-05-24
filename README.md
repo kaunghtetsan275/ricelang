@@ -1,5 +1,11 @@
 # ricelang
 
+[![PyPI](https://img.shields.io/pypi/v/ricelang.svg)](https://pypi.org/project/ricelang/)
+[![Python](https://img.shields.io/pypi/pyversions/ricelang.svg)](https://pypi.org/project/ricelang/)
+[![tests](https://github.com/kaunghtetsan275/ricelang/actions/workflows/test.yml/badge.svg)](https://github.com/kaunghtetsan275/ricelang/actions/workflows/test.yml)
+[![publish](https://github.com/kaunghtetsan275/ricelang/actions/workflows/publish.yml/badge.svg)](https://github.com/kaunghtetsan275/ricelang/actions/workflows/publish.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 NLP library for Southeast Asian and South Asian languages — language
 identification, tokenization, and Zawgyi/Unicode conversion.
 
