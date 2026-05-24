@@ -13,7 +13,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python: ["3.10", "3.11", "3.12", "3.13"]
+        # 3.13 excluded for now: fasttext-wheel 0.9.2 has no 3.13 Linux
+        # wheel and the from-source build fails on newer GCC.
+        python: ["3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - name: install uv
