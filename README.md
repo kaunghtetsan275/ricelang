@@ -1,9 +1,30 @@
 # ricelang
 
-NLP library for Southeast Asian languages — language identification,
-tokenization, and Zawgyi/Unicode conversion. Successor to
-[pyidaungsu](https://pypi.org/project/pyidaungsu/) with an expanded label
-set, full-Bible corpus from YouVersion scrapes, and a BPE tokenizer.
+NLP library for Southeast Asian and South Asian languages — language
+identification, tokenization, and Zawgyi/Unicode conversion.
+
+## Renamed from `pyidaungsu`
+
+This project was previously published as
+[pyidaungsu](https://pypi.org/project/pyidaungsu/) and has been
+substantially revamped:
+
+- **Renamed** to `ricelang` (PyPI + GitHub + import path).
+- **25 detectable languages** (was 3): added 22 SE/South Asian
+  languages, full ISO 639-3 codes throughout.
+- **Better detection model**: fastText with character n-grams, retrained
+  on a 787k-example corpus (Bible scrapes + Mon Wikipedia). P@1 = 99.85%.
+- **Added BPE tokenizers**: 24 per-language + 1 multilingual.
+- **uv-based**: `pyproject.toml`, no more `setup.py`.
+- **Demo server**: a `/demo` FastAPI app to try every function in a
+  browser (`uv run --group demo uvicorn demo.server:app --reload`).
+- **Modernized code**: split into focused modules, typed, lazy-loaded
+  models, cleaner public API. Existing function names
+  (`detect`, `tokenize`, `cvt2zg`, `cvt2uni`) are preserved.
+
+**Migrating from `pyidaungsu`**: change `import pyidaungsu as pds` to
+`import ricelang as pds` and most calls work as-is. Detector labels
+changed from `karen`/`mm_uni`/`mm_zg` to ISO codes `ksw`/`mya`/`zgi`.
 
 ## Installation
 
@@ -17,9 +38,8 @@ uv add ricelang
 
 ### Language detection
 
-Detects Burmese (Unicode and Zawgyi encodings), three Karen variants
-(S'gaw, Pwo, Geba), three Chin variants (Hakha, Falam, Tedim), Eastern
-Kayah, and Shan. Labels follow ISO 639-3 codes.
+Detects 25 languages across South and Southeast Asia (full table below).
+Labels follow ISO 639-3 codes.
 
 25 labels in three groups:
 
