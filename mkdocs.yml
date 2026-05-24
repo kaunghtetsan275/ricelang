@@ -1,0 +1,109 @@
+site_name: ricelang
+site_description: Language identification, tokenization, and Zawgyi/Unicode conversion for 50+ Southeast & South Asian languages
+site_url: https://kaunghtetsan275.github.io/ricelang/
+repo_url: https://github.com/kaunghtetsan275/ricelang
+repo_name: kaunghtetsan275/ricelang
+edit_uri: edit/master/docs/
+
+theme:
+  name: material
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+    - toc.follow
+    - search.suggest
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: green
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: green
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - glightbox
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            show_source: false
+            show_root_heading: true
+            show_signature_annotations: true
+            members_order: source
+            separate_signature: true
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - CLI: cli.md
+  - Guide:
+      - Language detection: guide/detection.md
+      - Tokenization: guide/tokenization.md
+      - Zawgyi / Unicode: guide/conversion.md
+      - Supported languages: guide/languages.md
+  - How it works:
+      - Hierarchical detector: architecture/detector.md
+      - Why not an LLM: architecture/vs-llm.md
+  - Training:
+      - Reproduce the detector: training/detector.md
+      - Reproduce the BPE: training/bpe.md
+      - Corpus layout: training/corpus.md
+  - Reference:
+      - Python API: api/index.md
+  - Migrating from pyidaungsu: migration.md
+  - Changelog: changelog.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/kaunghtetsan275/ricelang
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/ricelang/
+
+copyright: MIT licensed · ricelang is a revamp of pyidaungsu
