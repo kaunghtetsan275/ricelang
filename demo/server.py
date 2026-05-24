@@ -41,6 +41,10 @@ DETECT_LABELS = [
     "eng", "hin", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
     # regional / script variants
     "ban", "hnn", "kac", "mnw", "sun",
+    # script-monopoly freebies (Unicode-range detection, no ML)
+    "kor", "jpn", "ell", "heb", "hye", "kat", "amh", "sin", "bod",
+    "chr", "nqo", "mon", "vai", "ff", "mww", "bax", "lep", "lif",
+    "saz", "bug", "jav", "cjm", "mni", "nod", "sat", "khb", "tdd",
 ]
 
 LANG_NAMES: dict[str, str] = {
@@ -72,6 +76,34 @@ LANG_NAMES: dict[str, str] = {
     "kac": "Jingphaw (Kachin)",
     "mnw": "Mon",
     "sun": "Sundanese",
+    # script-monopoly free labels (no training data needed; Unicode-rule)
+    "kor": "Korean",
+    "jpn": "Japanese",
+    "ell": "Greek",
+    "heb": "Hebrew",
+    "hye": "Armenian",
+    "kat": "Georgian",
+    "amh": "Amharic",
+    "sin": "Sinhala",
+    "bod": "Tibetan",
+    "chr": "Cherokee",
+    "nqo": "N'Ko",
+    "mon": "Mongolian (script)",
+    "vai": "Vai",
+    "ff":  "Fulani (Adlam)",
+    "mww": "Hmong (Pahawh)",
+    "bax": "Bamum",
+    "lep": "Lepcha",
+    "lif": "Limbu",
+    "saz": "Saurashtra",
+    "bug": "Buginese",
+    "jav": "Javanese (script)",
+    "cjm": "Cham",
+    "mni": "Meetei (Manipuri)",
+    "nod": "Lanna (Tai Tham)",
+    "sat": "Santali (Ol Chiki)",
+    "khb": "Tai Lue",
+    "tdd": "Tai Nüa",
     # special BPE code
     "multi": "Multilingual",
     # legacy syllable-tokenizer lang codes
@@ -206,6 +238,35 @@ SAMPLES: dict[str, list[str]] = {
         "Nalika Allah nyiptakeun jagat raya,",
         "Sagala rupa di Israil anu geus dibaktikeun ka Kami tanpa sarat, eta oge keur maneh.",
     ],
+    # Script-monopoly freebies (greetings; Unicode-rule detection makes
+    # the model never look at the trained classifier for these).
+    "kor": ["안녕하세요 반갑습니다", "감사합니다", "한국어를 할 수 있습니다"],
+    "jpn": ["こんにちは、ありがとうございます", "日本語ができますか", "おはようございます"],
+    "ell": ["Γεια σας, τι κάνετε;", "Καλημέρα", "Ευχαριστώ πολύ"],
+    "heb": ["שלום עולם", "תודה רבה", "בוקר טוב"],
+    "hye": ["Բարեւ ձեզ", "Շնորհակալություն", "Բարի լույս"],
+    "kat": ["გამარჯობა", "მადლობა", "დილა მშვიდობისა"],
+    "amh": ["ሰላም እንዴት ነህ", "አመሰግናለሁ", "እንኳን ደህና መጣህ"],
+    "sin": ["ආයුබෝවන්", "ස්තූතියි", "සුභ උදෑසනක්"],
+    "bod": ["བཀྲ་ཤིས་བདེ་ལེགས།", "ཐུགས་རྗེ་ཆེ།", "ཞོགས་པ་བདེ་ལེགས།"],
+    "chr": ["ᎣᏏᏲ", "ᏩᏙ"],
+    "nqo": ["ߊߟߏ߫"],
+    "mon": ["ᠰᠠᠶᠢᠨ ᠪᠠᠶᠢᠨ᠎ᠠ"],
+    "jav": ["ꦱꦸꦒꦼꦁ ꦫꦮꦸꦃ"],
+    "cjm": ["ꨧꨤꨩꨠ"],
+    "mni": ["ꯈꯨꯔꯨꯝꯖꯔꯤ"],
+    "nod": ["ᨪᩣ᩠ᨿᨡᩬᩁ"],
+    "sat": ["ᱡᱚᱦᱟᱨ"],
+    "khb": ["ᦌᦱᧈᦟᦴᧉᧁᦱᧈ"],
+    "tdd": ["ᥑᥩᥒᥱᥖᥬᥱ"],
+    "vai": ["ꕒꕎ"],
+    "ff":  ["𞤧𞤢𞤤𞤢𞥄𞤥"],
+    "mww": ["𖬓𖬰𖬪𖬰𖬢"],
+    "bax": ["ꚠꚡ"],
+    "lep": ["ᰀᰕᰒ"],
+    "lif": ["ᤛᤣᤘᤠ"],
+    "saz": ["ꢂꢫꢼꢰ"],
+    "bug": ["ᨔᨙᨒᨆᨙ"],
 }
 
 
@@ -486,6 +547,11 @@ def index():
                  "langs": ["eng", "hin", "khm", "lao",
                            "msa", "tam", "tgl", "tha", "vie", "zho",
                            "ban", "sun", "hnn"]},
+                {"label": "Free (script-rule)",
+                 "langs": ["kor", "jpn", "ell", "heb", "hye", "kat",
+                           "amh", "sin", "bod", "jav", "cjm", "mni",
+                           "nod", "sat", "khb", "tdd", "mon", "chr",
+                           "vai", "nqo"]},
             ])))
     return page
 

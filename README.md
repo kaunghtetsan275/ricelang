@@ -47,7 +47,9 @@ legacy non-Unicode Zawgyi font. The underlying language is `mya`; the
 separate label exists so callers can route Zawgyi text through
 `cvt2uni()` before any further NLP.
 
-25 labels in three groups:
+52+ labels in four groups. The first three come from a trained fastText
+classifier; the **fourth group is detected by Unicode-block rule alone**
+(no training data, no model call — scripts that have one language each).
 
 **Myanmar-region minority languages** (original focus):
 
@@ -79,16 +81,47 @@ separate label exists so callers can route Zawgyi text through
 | `hnn`  | Hanunoo                        |
 
 Mon (`mnw`) is sourced from the Mon Wikipedia dump (135k paragraphs);
-all other labels come from YouVersion Bible scrapes.
+all other trained labels come from YouVersion Bible scrapes.
+
+**Script-rule freebies** (no training data — Unicode block alone identifies them):
+
+| Label  | Language | | Label  | Language          |
+| ------ | -------- |-| ------ | ----------------- |
+| `kor`  | Korean   | | `bod`  | Tibetan           |
+| `jpn`  | Japanese | | `chr`  | Cherokee          |
+| `ell`  | Greek    | | `nqo`  | N'Ko              |
+| `heb`  | Hebrew   | | `mon`  | Mongolian (script) |
+| `hye`  | Armenian | | `vai`  | Vai               |
+| `kat`  | Georgian | | `jav`  | Javanese (script) |
+| `amh`  | Amharic  | | `cjm`  | Cham              |
+| `sin`  | Sinhala  | | `mni`  | Meetei            |
+|        |          | | `nod`  | Lanna (Tai Tham)  |
+|        |          | | `sat`  | Santali (Ol Chiki)|
+|        |          | | `khb`  | Tai Lue           |
+|        |          | | `tdd`  | Tai Nüa           |
+
+…plus Bamum, Lepcha, Limbu, Saurashtra, Buginese, Pahawh Hmong, Adlam
+(Fulani). Adding more is a one-line Unicode-range entry in
+`ricelang/scripts.py` — see that file's `SCRIPT_RULES` table.
 
 † `zgi` is the only non-ISO-639-3 label. It's not a language but an
 encoding marker for Burmese text written in the legacy Zawgyi font
 (the underlying language is `mya`). Use `cvt2uni()` to normalize
 Zawgyi text to Unicode before any downstream processing.
 
-**Accuracy** (held-out validation, 71,833 examples across 25 labels):
-overall **P@1 = 99.85%**. 12 labels score 100%, 13 more score 99.2–99.97%.
-Lowest is `cnh` at 99.22%.
+**Accuracy** (held-out validation, 71,833 examples across the 25
+trained labels): overall **P@1 = 99.85%**. 12 labels score 100%, 13
+more score 99.2–99.97%. Lowest is `cnh` at 99.22%. The script-rule
+freebies are 100% by construction (Unicode-block check is
+deterministic).
+
+**Out-of-scope text** (Korean text without Hangul, Russian, Arabic,
+emoji-only, garbage) returns `None` from `detect()` — no more
+confidently-wrong predictions for languages outside the supported set.
+Exception: Latin script is shared with many global languages we don't
+support (French, Spanish, German, etc.) — those will still be routed
+to whichever in-set Latin label fits best. Use a general-purpose LID
+upstream as a router if you need that distinction.
 
 **Languages deliberately not supported** because text-only character-
 n-gram detection cannot meaningfully distinguish them from a sibling

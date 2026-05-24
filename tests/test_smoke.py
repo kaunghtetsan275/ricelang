@@ -53,6 +53,33 @@ def test_detect_geba_karen():
     assert pds.detect("ယ့ၣ်​ရှူး​ခ​ရၱာ်, စီၤ​ဒၤ​ဝံး​အ​ဖဳး, စီၤ​အၤ​ဘြၤ​ဟၣ်​အ​ဖဳး​အ​တဲၤ​အီၣ်​လၤ") == "kvq"
 
 
+def test_detect_script_monopoly_freebies():
+    # Languages added via Unicode-script rules — no training data,
+    # detection is pure character-range. These cover scripts that have
+    # essentially one language each.
+    cases = [
+        ("kor", "안녕하세요 반갑습니다"),
+        ("jpn", "こんにちは、ありがとうございます"),
+        ("jpn", "日本語ができますか"),         # kanji + kana
+        ("ell", "Γεια σας τι κάνετε"),
+        ("heb", "שלום עולם"),
+        ("hye", "Բարեւ ձեզ"),
+        ("kat", "გამარჯობა"),
+        ("amh", "ሰላም እንዴት ነህ"),
+        ("sin", "ආයුබෝවන්"),
+        ("bod", "བཀྲ་ཤིས་བདེ་ལེགས།"),
+    ]
+    for expected, text in cases:
+        assert pds.detect(text) == expected, f"{expected!r} text predicted {pds.detect(text)!r}"
+
+
+def test_detect_out_of_scope_returns_none():
+    # No supported script -> returns None (not a confidently-wrong guess).
+    assert pds.detect("🎉🚀💯") is None
+    assert pds.detect("Привет как дела") is None    # Russian (no Cyrillic rule)
+    assert pds.detect("مرحبا كيف حالك") is None     # Arabic (no Arabic rule)
+
+
 def test_detect_broader_languages():
     # Sanity checks for the languages added in v0.3.x. Each is a Gen 1:1
     # opener from the bundled corpus.
