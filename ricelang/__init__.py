@@ -9,7 +9,7 @@ from .convert import cvt2uni, cvt2zg, cvt2zgi
 from .detect import detect, predict
 from .tokenize import Tokenize, tokenize
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 __all__ = [
     "cvt2uni",
