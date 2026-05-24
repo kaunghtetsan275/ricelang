@@ -50,7 +50,7 @@ LANG_NAMES: dict[str, str] = {
     "cfm": "Falam Chin",
     "ctd": "Tedim Chin",
     "eky": "Eastern Kayah",
-    "shn": "Shan",
+    "shn": "Shan (Tai Yai)",
     # broader SE / South Asian
     "eng": "English",
     "hin": "Hindi",

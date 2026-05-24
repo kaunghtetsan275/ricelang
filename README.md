@@ -36,7 +36,7 @@ Kayah, and Shan. Labels follow ISO 639-3 codes.
 | `cfm`  | Falam Chin                |
 | `ctd`  | Tedim Chin                |
 | `eky`  | Eastern Kayah             |
-| `shn`  | Shan                      |
+| `shn`  | Shan (Tai Yai)            |
 
 **Broader SE / South Asian** (added in 0.3.x via YouVersion full-Bible scrapes):
 
@@ -152,6 +152,31 @@ though no native Zawgyi text is available. Disable with
 `scripts/train_detector.py` also accepts a directory tree of per-language
 `.txt` files (`--train-dir <dir>` with subdirs `uni/`, `ksw/`, ...) — see
 `scripts/train_detector.py --help` for all knobs.
+
+## Planned languages
+
+Languages to add next, grouped by region. Each needs a sourcing decision
+(YouVersion if a Bible exists, otherwise community/literature corpora):
+
+**Myanmar region**
+- Rakhine / Arakan (`rki`)
+- Mon (`mnw`)
+- Jingphaw / Kachin (`kac`)
+
+**Thailand region**
+- Lanna / Northern Thai in Tai Tham script (`nod`)
+- Malay in Jawi script (`msa_Arab`)
+
+**Philippines region**
+- Tagalog in Mangyan / Hanunoo script (`hnn`)
+
+**Indonesia region**
+- Balinese (`ban`)
+- Sundanese (`sun`)
+- Batak (`bbc` Toba; macro-language with multiple ISO codes)
+
+**Script / writing-system variants**
+- Chinese Traditional (`zho_Hant` — currently only Simplified `zho` is trained)
 
 ## Future work
 
