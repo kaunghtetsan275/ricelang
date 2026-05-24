@@ -36,6 +36,43 @@ pip install ricelang
 uv add ricelang
 ```
 
+## CLI
+
+Installing the package registers a `ricelang` command. Every subcommand
+accepts the text as a positional argument **or** `-` to read from
+stdin. Add `--json` to any subcommand for machine-parseable output.
+
+```sh
+# detect — one ISO 639-3 label (or 'None' for out-of-scope text)
+ricelang detect "ထမင်းစားပြီးပြီလား"          # → mya
+ricelang detect "안녕하세요"                   # → kor
+ricelang detect "🎉"                          # → None
+
+# predict — top-k labels with probabilities (tab-separated, or --json)
+ricelang predict "Pathian nih van" -k 5
+ricelang --json predict "你好" -k 3
+
+# convert — Burmese Zawgyi ↔ Unicode
+ricelang convert --to zg  "ထမင်းစားပြီးပြီလား"
+ricelang convert --to uni "ထမင္းစားၿပီးၿပီလား"
+
+# tokenize — syllable | word | bpe
+ricelang tokenize "ဖေဖေနဲ့မေမေ"                          # syllable, default lang=mm
+ricelang tokenize --form word "ဖေဖေနဲ့မေမေ၏ကျေးဇူး"      # CRF word segmentation (Burmese)
+ricelang tokenize --form bpe  "Pathian nih van"            # multilingual BPE (default)
+ricelang tokenize --form bpe --lang mya "ဖေဖေနဲ့မေမေ"     # per-language BPE
+
+# stdin — for piping from files / other commands
+cat docs.txt | ricelang detect -
+echo "ထမင်းစားပြီးပြီလား" | ricelang tokenize --form bpe --lang mya -
+
+ricelang version    # print library version
+ricelang --help     # all subcommands
+```
+
+The CLI is a thin wrapper over the Python API, so behavior and labels
+are identical to `import ricelang as rl` — see below.
+
 ## Usage
 
 ### Language detection
