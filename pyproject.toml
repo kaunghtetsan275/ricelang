@@ -1,11 +1,11 @@
 [project]
 name = "ricelang"
-version = "0.4.1"
+version = "0.4.2"
 description = "Language identification and tokenization for Southeast Asian languages (Burmese, Karen variants, Chin variants, Eastern Kayah, Shan, etc.) — also exposes a `ricelang` CLI"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Kaung Htet San", email = "kaung@htetsan.me" }]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
