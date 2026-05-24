@@ -13,7 +13,8 @@ This project is a revamp of
   languages, full ISO 639-3 codes throughout.
 - **Better detection model**: fastText with character n-grams, retrained
   on a 787k-example corpus (Bible scrapes + Mon Wikipedia). P@1 = 99.85%.
-- **Added BPE tokenizers**: 24 per-language + 1 multilingual.
+- **Added BPE tokenizers**: 24 per-language + 1 multilingual, all
+  bundled, lazy-loaded.
 - **uv-based**: `pyproject.toml`, no more `setup.py`.
 - **Demo server**: a `/demo` FastAPI app to try every function in a
   browser (`uv run --group demo uvicorn demo.server:app --reload`).
@@ -110,7 +111,7 @@ training caps each label at 40k examples (`--cap-per-label` in
 `scripts/build_corpus.py`). Without it, `mnw` (135k paragraphs) would
 dominate short Myanmar-script input.
 
-```sh
+```python
 import ricelang as pds
 
 pds.detect("ထမင်းစားပြီးပြီလား")
@@ -123,7 +124,7 @@ pds.detect("တၢ်သိၣ်လိတၢ်ဖးလံာ် ကွဲး�
 
 ### Zawgyi-Unicode conversion
 
-```sh
+```python
 # convert to zawgyi (cvt2zg, or cvt2zgi alias)
 pds.cvt2zg("ထမင်းစားပြီးပြီလား")
 >> "ထမင္းစားၿပီးၿပီလား"
@@ -135,7 +136,7 @@ pds.cvt2uni("ထမင္းစားၿပီးၿပီလား")
 
 ### Tokenization
 
-```sh
+```python
 # syllable level tokenization for Burmese
 pds.tokenize("Alan TuringကိုArtificial Intelligenceနဲ့Computerတွေရဲ့ဖခင်ဆိုပြီးလူသိများပါတယ်") # lang parameter for default function is 'mm'
 >> ['Alan', 'Turing', 'ကို', 'Artificial', 'Intelligence', 'နဲ့', 'Computer', 'တွေ', 'ရဲ့', 'ဖ', 'ခင်', 'ဆို', 'ပြီး', 'လူ', 'သိ', 'များ', 'ပါ', 'တယ်']
@@ -150,10 +151,11 @@ pds.tokenize("ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရာ
 
 ```
 
-Syllable-level tokenization supports for 4 languages (Burmese, Karen, Shan, Mon). Word-level tokenization supports only Burmese currently.</br>
-Available values for `lang` parameter in `tokenize` function: "mm", "karen", "mon", "shan"
+Syllable-level tokenization supports 4 languages (Burmese, Karen, Mon, Shan)
+via the legacy `lang` argument: `"mm"`, `"karen"`, `"mon"`, `"shan"`.
+Word-level tokenization (CRF-based) supports only Burmese.
 
-```sh
+```python
 # Multilingual BPE — handles every supported script. Default for form="bpe".
 pds.tokenize("Pathian nih van le vawlei a ser hna tikah", form="bpe")
 
@@ -162,17 +164,34 @@ pds.tokenize("ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရာ
 >> ['ဖေ', 'ဖေ', 'နဲ့', 'မေ', 'မေ', '၏', 'ကျေးဇူး', 'တရား', 'မှာ', 'ကြီးမား', 'လှ', 'ပေ', 'သည်']
 ```
 
-BPE tokenizers are bundled for every supported language (20 per-language
-models — every label except `zgi`, since it shares the Burmese script
-with `mya`) plus a multilingual one (`multi`, 32k vocab) that covers
-every script in a single tokenizer. Per-language BPEs target 16k vocab
+BPE tokenizers are bundled for every supported language (24 per-language
+models — every label except `zgi`, which shares the Burmese script with
+`mya`) plus a multilingual one (`multi`, 32k vocab) that covers every
+script in a single tokenizer. Per-language BPEs target 16k vocab
 (smaller for tiny corpora like `kvq`, `khm`); `multi` handles
 code-switching naturally. Retrain via `scripts/train_bpe.py --all`.
+
+## Demo server
+
+A FastAPI app that exposes every public function with a form UI:
+
+```sh
+uv run --group demo uvicorn demo.server:app --reload --port 8000
+```
+
+- Form UI: <http://127.0.0.1:8000/>
+- Swagger / API explorer: <http://127.0.0.1:8000/docs>
+
+Includes per-language sample buttons that populate the input field with a
+random sentence in the chosen language so you can try detection,
+conversion, and tokenization without having to find text in 25
+languages yourself. See `demo/README.md`.
 
 ## Training the language detector
 
 The bundled `ricelang/model/pdsdetect.ftz` is a fastText supervised
-classifier (char n-grams with word n-grams, quantized to ~1.2 MB).
+classifier (subword character n-grams, no word n-grams; quantized to
+~1.8 MB).
 
 ### Reproduce the bundled model
 
@@ -192,43 +211,41 @@ uv run python scripts/train_detector.py \
     --epoch 25 --lr 0.5 --dim 16 --word-ngrams 1 --minn 2 --maxn 5
 ```
 
-The corpus builder also synthesizes a `zg` class by running `cvt2zg` over
-the Unicode Burmese examples, so the model can distinguish encodings even
-though no native Zawgyi text is available. Disable with
-`--no-synthesize-zg`.
+The corpus builder also synthesizes a `zgi` class by running `cvt2zg`
+over the Unicode Burmese examples, so the model can distinguish
+encodings even though no native Zawgyi text is available in the
+corpus. Disable with `--no-synthesize-zg`.
 
 ### Train on your own data
 
 `scripts/train_detector.py` also accepts a directory tree of per-language
-`.txt` files (`--train-dir <dir>` with subdirs `uni/`, `ksw/`, ...) — see
+`.txt` files (`--train-dir <dir>` with subdirs `mya/`, `ksw/`, ...) — see
 `scripts/train_detector.py --help` for all knobs.
 
-## Planned languages
+## Planned / wanted languages
 
-Languages to add next, grouped by region. Each needs a sourcing decision
-(YouVersion if a Bible exists, otherwise community/literature corpora):
+Candidates to add next, grouped by what's blocking them:
 
-**Myanmar region**
-- _(no remaining gaps tracked here — see the support table above)_
+**Need a different source than YouVersion**
+- **Lanna / Northern Thai** in Tai Tham script (`nod`, U+1A20–U+1AAF) —
+  the YouVersion v1907 nod version uses Thai-script transliteration
+  which is visually indistinguishable from `tha`; real Tai Tham
+  orthography lives mostly in scanned monastery manuscripts and a small
+  Wikipedia Incubator project.
+- **Batak Toba** (`bbc`) — the only YouVersion bbc version (v17) is a
+  catalog placeholder with no published chapter content.
+- **Mon (`mnw`)** is shipped from the Mon Wikipedia dump — but more
+  modern/news-style Mon text from sources like Independent Mon News
+  Agency (mon.monnews.org) would broaden coverage.
 
-**Thailand region**
-- Lanna / Northern Thai in **Tai Tham** script (`nod`, U+1A20–U+1AAF) —
-  the YouVersion v1907 source uses Thai-script transliteration which is
-  visually indistinguishable from `tha`; the actual Tai Tham orthography
-  exists mostly in scanned monastery manuscripts and a small Wikipedia
-  Incubator project. Needs a different source.
-- Malay in Jawi script (`msa_Arab`)
+**Need source identification**
+- **Malay in Jawi script** (`msa_Arab`) — would be a true script variant,
+  not just a sibling of Latin-script `msa`.
 
-**Philippines region**
-- Tagalog in Mangyan / Hanunoo script (`hnn`)
-
-**Indonesia region**
-- Balinese (`ban`)
-- Sundanese (`sun`)
-- Batak (`bbc` Toba; macro-language with multiple ISO codes)
-
-**Script / writing-system variants**
-- Chinese Traditional (`zho_Hant` — currently only Simplified `zho` is trained)
+**Cannot be supported by character-n-gram detection** (see "Languages
+deliberately not supported" above): Indonesian (`ind`), Rakhine (`rki`),
+Chinese Traditional (`zho_hant`). These would need either external
+metadata (region, user profile) or a different model class.
 
 ## Future work
 
