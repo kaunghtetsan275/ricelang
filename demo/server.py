@@ -340,85 +340,211 @@ def tokenize(body: TokenizeIn):
 
 INDEX_HTML = """<!doctype html>
 <html lang="en"><head>
-<meta charset="utf-8"><title>ricelang demo</title>
+<meta charset="utf-8">
+<title>ricelang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  body{font:14px/1.5 system-ui,sans-serif;max-width:760px;margin:2rem auto;padding:0 1rem;color:#222}
-  h1{margin-bottom:.3rem} h2{margin-top:2rem;border-bottom:1px solid #ddd;padding-bottom:.3rem}
-  section{margin-top:1rem}
-  textarea{width:100%;min-height:60px;font-family:inherit;font-size:14px;padding:.5rem;border:1px solid #bbb;border-radius:4px}
-  label{display:inline-block;margin-right:.5rem}
-  select,button{padding:.3rem .6rem;border:1px solid #888;border-radius:4px;background:#fff;cursor:pointer}
-  button{background:#1d4ed8;color:#fff;border-color:#1d4ed8;margin-top:.5rem}
-  .samples{display:flex;flex-direction:column;gap:.1rem;margin-bottom:.4rem}
-  .samples .group{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;
-                  padding:.35rem 0;border-bottom:1px dashed #e2e8f0}
-  .samples .group:last-child{border-bottom:none}
-  .samples .group-label{font-size:11px;color:#64748b;font-weight:600;letter-spacing:.02em;
-                        text-transform:uppercase;min-width:11rem}
-  .samples button{margin:0;padding:.15rem .55rem;font-size:12px;background:#f1f5f9;color:#334155;
-                  border:1px solid #cbd5e1}
-  .samples button:hover{background:#e0e7ff;border-color:#1d4ed8;color:#1e3a8a}
-  small{color:#666} a{color:#1d4ed8}
+  :root{
+    --bg:#fafafa;
+    --fg:#111;
+    --muted:#666;
+    --soft:#999;
+    --line:#e5e5e5;
+    --accent:#0a7;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font:13px/1.5 var(--mono);
+    min-height:100vh;
+  }
+  main{max-width:780px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
 
-  /* result containers */
-  .out{margin-top:.6rem;min-height:1.5rem;display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
-  .out.text{display:block;background:#f4f4f4;padding:.6rem;border-radius:4px;font-size:15px;word-break:break-word}
-  .err{color:#b91c1c;font-family:ui-monospace,monospace;font-size:13px}
+  header{
+    display:flex;align-items:baseline;justify-content:space-between;gap:1rem;
+    padding-bottom:1rem;margin-bottom:2.5rem;border-bottom:1px solid var(--line);
+  }
+  h1{
+    font:500 1.2rem/1 var(--mono);
+    margin:0;letter-spacing:-0.01em;
+  }
+  h1 .v{color:var(--soft);font-weight:400;margin-left:.5rem}
+  header nav{font-size:12px;color:var(--muted)}
+  header nav a{color:var(--muted);margin-left:1rem}
 
-  /* pills */
-  .pill{display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .55rem;border-radius:999px;
-        background:#e0e7ff;color:#1e3a8a;font-size:13px;line-height:1.4;border:1px solid #c7d2fe}
-  .pill .label{font-weight:600;letter-spacing:.02em}
-  .pill .code{font-variant-numeric:tabular-nums;color:#64748b;font-size:11px;
-              font-family:ui-monospace,SFMono-Regular,monospace;text-transform:lowercase}
-  .pill .prob{font-variant-numeric:tabular-nums;color:#475569;font-size:12px}
-  .pill.token{background:#f1f5f9;color:#0f172a;border-color:#e2e8f0;font-family:ui-monospace,SFMono-Regular,monospace}
-  .pill.top{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
-  .pill.top .prob{color:#dbeafe}
-  .pill.top .code{color:#dbeafe}
-  .count{color:#666;font-size:12px;margin-left:.4rem}
+  section{margin-bottom:3rem}
+  h2{
+    font:500 13px/1 var(--mono);
+    text-transform:uppercase;letter-spacing:.1em;color:var(--muted);
+    margin:0 0 .75rem;
+  }
+  h2::before{content:"# ";color:var(--soft)}
+
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  }
+  textarea{
+    display:block;width:100%;min-height:4rem;padding:.75rem .9rem;
+    border:none;background:transparent;color:var(--fg);
+    font:13px/1.55 var(--mono);resize:vertical;outline:none;
+  }
+  textarea:focus{background:#fcfcfc}
+
+  .controls{
+    display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;
+    padding:.5rem .75rem;border-top:1px solid var(--line);background:#fafafa;
+    font-size:12px;
+  }
+  .controls .grow{flex:1}
+  .control-group{display:inline-flex;align-items:center;gap:.4rem;color:var(--muted)}
+  select{
+    font:12px/1 var(--mono);background:#fff;border:1px solid var(--line);
+    color:var(--fg);padding:.2rem .4rem;border-radius:2px;cursor:pointer;
+  }
+  select:focus{outline:1px solid var(--accent);outline-offset:0}
+
+  button.primary{
+    font:500 12px/1 var(--mono);letter-spacing:.02em;
+    background:var(--fg);color:var(--bg);border:1px solid var(--fg);
+    padding:.35rem .8rem;border-radius:2px;cursor:pointer;
+  }
+  button.primary:hover{background:var(--accent);border-color:var(--accent)}
+  button.primary.ghost{background:transparent;color:var(--fg)}
+  button.primary.ghost:hover{background:var(--fg);color:var(--bg)}
+
+  /* sample picker = a single <select> at the top of the input card */
+  .picker{
+    display:flex;align-items:center;gap:.4rem;
+    padding:.4rem .75rem;border-bottom:1px solid var(--line);
+    background:#fafafa;
+    font-size:12px;color:var(--muted);
+  }
+  .picker select{
+    flex:1;font:12px/1.3 var(--mono);
+    background:#fff;border:1px solid var(--line);color:var(--fg);
+    padding:.2rem .4rem;border-radius:2px;cursor:pointer;
+  }
+  .picker .label{color:var(--soft);font-size:11px}
+
+  /* output */
+  .out{margin-top:.85rem;min-height:0}
+  .out:empty{display:none}
+  .out.text{
+    font:13px/1.55 var(--mono);padding:.7rem .9rem;
+    background:#fff;border:1px solid var(--line);border-radius:3px;word-break:break-word;
+  }
+  .out.pills{display:flex;flex-wrap:wrap;gap:.4rem;align-items:stretch}
+  .err{color:#c00;font-size:12px;padding:.4rem 0}
+
+  /* pills - flat, mono, no rounded corners */
+  .pill{
+    display:inline-flex;flex-direction:column;align-items:flex-start;gap:.1rem;
+    padding:.4rem .6rem;
+    background:#fff;border:1px solid var(--line);border-radius:2px;
+    font-size:12px;
+  }
+  .pill .label{font-weight:500;color:var(--fg);white-space:nowrap}
+  .pill .code{color:var(--soft);font-size:10.5px}
+  .pill .prob{color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;margin-top:.1rem}
+  .pill.top{background:var(--fg);border-color:var(--fg);padding:.55rem .8rem}
+  .pill.top .label{color:var(--bg);font-size:14px}
+  .pill.top .code{color:var(--accent)}
+  .pill.top .prob{color:#bbb}
+
+  /* token pills - JS sets bg/color inline */
+  .pill.token{
+    flex-direction:row;align-items:center;
+    padding:.2rem .45rem;gap:0;
+    font-size:12px;line-height:1.3;
+    border-radius:2px;border:1px solid transparent;
+  }
+  .count{color:var(--soft);font-size:11px;margin-left:.5rem;align-self:center}
+
+  @media (max-width:560px){
+    main{padding:1.5rem 1rem 3rem}
+    .samples .group-label{flex:1 1 100%}
+  }
 </style></head><body>
-<h1>ricelang demo <small>v__VERSION__</small></h1>
-<p><small>Interactive API docs at <a href="/docs">/docs</a>. Library docs in <a href="https://github.com/kaunghtetsan275/ricelang">README</a>.</small></p>
+<main>
+  <header>
+    <h1>ricelang<span class="v">v__VERSION__</span></h1>
+    <nav>
+      <a href="/docs">/docs</a>
+      <a href="https://github.com/kaunghtetsan275/ricelang">github</a>
+      <a href="https://pypi.org/project/ricelang/">pypi</a>
+    </nav>
+  </header>
 
-<h2>detect</h2>
-<section>
-  <div class="samples" id="d_samples"></div>
-  <textarea id="d_in">ထမင်းစားပြီးပြီလား</textarea>
-  <button onclick="doDetect()">detect</button>
-  <button onclick="doPredict()">predict (top 5)</button>
-  <div id="d_out" class="out"></div>
-</section>
+  <section>
+    <h2>detect</h2>
+    <div class="card">
+      <div class="picker">
+        <span class="label">try</span>
+        <select id="d_pick" data-input="d_in" data-action="auto"></select>
+      </div>
+      <textarea id="d_in">ထမင်းစားပြီးပြီလား</textarea>
+      <div class="controls">
+        <span class="grow"></span>
+        <button class="primary ghost" onclick="doDetect()">detect</button>
+        <button class="primary" onclick="doPredict()">predict · top 5</button>
+      </div>
+    </div>
+    <div id="d_out" class="out pills"></div>
+  </section>
 
-<h2>convert (Burmese encoding)</h2>
-<section>
-  <div class="samples" id="c_samples"></div>
-  <textarea id="c_in">ထမင်းစားပြီးပြီလား</textarea>
-  <button onclick="doConvert('zg')">→ Zawgyi</button>
-  <button onclick="doConvert('uni')">→ Unicode</button>
-  <div id="c_out" class="out text"></div>
-</section>
+  <section>
+    <h2>convert · zawgyi ↔ unicode</h2>
+    <div class="card">
+      <div class="picker">
+        <span class="label">try</span>
+        <select id="c_pick" data-input="c_in" data-action="convert"></select>
+      </div>
+      <textarea id="c_in">ထမင်းစားပြီးပြီလား</textarea>
+      <div class="controls">
+        <span class="grow"></span>
+        <button class="primary ghost" onclick="doConvert('zg')">→ zawgyi</button>
+        <button class="primary" onclick="doConvert('uni')">→ unicode</button>
+      </div>
+    </div>
+    <div id="c_out" class="out text"></div>
+  </section>
 
-<h2>tokenize</h2>
-<section>
-  <div class="samples" id="t_samples"></div>
-  <textarea id="t_in">ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်</textarea>
-  <div style="margin-top:.5rem">
-    <label>form:
-      <select id="t_form">
-        <option value="syllable">syllable</option>
-        <option value="word">word</option>
-        <option value="bpe">bpe</option>
-      </select></label>
-    <label>lang:
-      <select id="t_lang">
-        <optgroup label="syllable">__SYL_OPTS__</optgroup>
-        <optgroup label="bpe">__BPE_OPTS__</optgroup>
-      </select></label>
-    <button onclick="doTokenize()">tokenize</button>
-  </div>
-  <div id="t_out" class="out"></div>
-</section>
+  <section>
+    <h2>tokenize</h2>
+    <div class="card">
+      <div class="picker">
+        <span class="label">try</span>
+        <select id="t_pick" data-input="t_in" data-action="tokenize"></select>
+      </div>
+      <textarea id="t_in">ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်</textarea>
+      <div class="controls">
+        <span class="control-group">form
+          <select id="t_form">
+            <option value="syllable">syllable</option>
+            <option value="word">word</option>
+            <option value="bpe">bpe</option>
+          </select>
+        </span>
+        <span class="control-group">lang
+          <select id="t_lang">
+            <optgroup label="syllable">__SYL_OPTS__</optgroup>
+            <optgroup label="bpe">__BPE_OPTS__</optgroup>
+          </select>
+        </span>
+        <span class="grow"></span>
+        <button class="primary" onclick="doTokenize()">tokenize</button>
+      </div>
+    </div>
+    <div id="t_out" class="out pills"></div>
+  </section>
+</main>
 
 <script>
 const $ = id => document.getElementById(id);
@@ -429,48 +555,59 @@ const LANG_NAMES = __LANG_NAMES_JSON__;
 const GROUPS = __GROUPS_JSON__;          // [{label, langs}, ...]
 const CONVERT_LANGS = ["mya", "zgi"];
 
-// Map a group's `action` field (or a user-passed default) to a handler
-// that runs *after* the sample text is loaded into the input. Handlers
-// must accept no args and read from the input themselves.
+// Map a group's `action` (or "auto" = use group's own) to a handler.
+// Handlers read input directly from their textarea.
 const ACTIONS = {
   detect:   () => doDetect(),
   predict:  () => doPredict(),
-  convert:  () => doConvert("zg"),   // for the convert section's sample row
+  convert:  () => doConvert("zg"),
   tokenize: () => doTokenize(),
 };
 
-function buildSamples(rowId, inputId, groups, defaultAction) {
-  const row = $(rowId);
+// Populate a <select> with optgroup'd options from GROUPS, then run
+// the action whenever the user picks a language.
+function wirePicker(selectId, groups) {
+  const sel = $(selectId);
+  const inputId = sel.dataset.input;
+  const dataAction = sel.dataset.action;  // "auto" or a specific action
+
+  // placeholder option
+  const ph = document.createElement("option");
+  ph.value = ""; ph.textContent = "load a sample…";
+  ph.disabled = true; ph.selected = true;
+  sel.appendChild(ph);
+
   groups.forEach(g => {
-    const wrap = document.createElement("div");
-    wrap.className = "group";
-    if (g.label) {
-      const lbl = document.createElement("span");
-      lbl.className = "group-label";
-      lbl.textContent = g.label;
-      wrap.appendChild(lbl);
-    }
-    const action = g.action || defaultAction;
+    const og = g.label
+      ? document.createElement("optgroup")
+      : sel;
+    if (g.label) { og.label = g.label; sel.appendChild(og); }
     g.langs.forEach(lang => {
-      const btn = document.createElement("button");
-      btn.textContent = LANG_NAMES[lang] || lang;
-      btn.title = `random ${lang} sample — auto-runs ${action || "(no action)"}`;
-      btn.onclick = async () => {
-        const r = await fetch(`/sample/${lang}`);
-        if (!r.ok) return;
-        const {text} = await r.json();
-        $(inputId).value = text;
-        if (action && ACTIONS[action]) ACTIONS[action]();
-      };
-      wrap.appendChild(btn);
+      const opt = document.createElement("option");
+      opt.value = lang;
+      opt.dataset.action = g.action || "";
+      opt.textContent = LANG_NAMES[lang] || lang;
+      og.appendChild(opt);
     });
-    row.appendChild(wrap);
+  });
+
+  sel.addEventListener("change", async () => {
+    const lang = sel.value;
+    if (!lang) return;
+    const action = dataAction === "auto"
+      ? (sel.options[sel.selectedIndex].dataset.action || "detect")
+      : dataAction;
+    const r = await fetch(`/sample/${lang}`);
+    if (!r.ok) return;
+    const {text} = await r.json();
+    $(inputId).value = text;
+    if (ACTIONS[action]) ACTIONS[action]();
+    sel.selectedIndex = 0;  // reset to placeholder
   });
 }
-buildSamples("d_samples", "d_in", GROUPS, "detect");
-buildSamples("c_samples", "c_in",
-             [{label: null, action: "convert", langs: CONVERT_LANGS}]);
-buildSamples("t_samples", "t_in", GROUPS, "tokenize");
+wirePicker("d_pick", GROUPS);
+wirePicker("c_pick", [{label: null, action: "convert", langs: CONVERT_LANGS}]);
+wirePicker("t_pick", GROUPS);
 const escape = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 async function post(url, body) {
@@ -556,14 +693,17 @@ def index():
                 # buttons show top-5 predictions (interesting because
                 # there's actually a competition among labels); script-rule
                 # buttons show the single deterministic label.
-                {"label": "ML · Latin script",
+                {"label": "Latin · ML",
                  "action": "predict",
                  "langs": ["eng", "cnh", "cfm", "ctd", "msa", "tgl", "vie",
-                           "ban", "sun", "hnn"]},
-                {"label": "ML · Myanmar block",
+                           "ban", "sun", "hnn", "kac"]},
+                {"label": "Myanmar block · ML",
                  "action": "predict",
-                 "langs": ["mya", "zgi", "ksw", "pwo", "kvq", "shn", "mnw", "kac"]},
-                {"label": "Script-rule (no ML)",
+                 "langs": ["mya", "zgi", "ksw", "pwo", "kvq", "mnw"]},
+                {"label": "Myanmar block · No ML",
+                 "action": "detect",
+                 "langs": ["shn"]},
+                {"label": "Single script · No ML",
                  "action": "detect",
                  "langs": [
                      "hin", "tam", "tha", "lao", "khm", "eky", "zho",

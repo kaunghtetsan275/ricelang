@@ -133,8 +133,33 @@ SCRIPT_RULES: list[tuple] = [
     # CJK without Hiragana/Hangul -> Chinese (already filtered for Japanese/Korean above)
     ("zho", [(0x3400, 0x4DBF), (0x4E00, 0x9FFF), (0x20000, 0x2A6DF)], 0.30, None),
 
+    # ----- Shan: distinctive codepoints inside the Myanmar block -----
+    # The Myanmar block (0x1000-0x109F) is shared with Burmese, Mon and
+    # the Karen variants -- AND with Zawgyi-encoded Burmese, which is
+    # the awkward case. (Jingphaw / Kachin uses Latin in our corpus,
+    # not the Myanmar block.) Zawgyi repurposed many "Shan ..." codepoints (e.g.
+    # U+107F) as variant glyphs for Burmese tones, so at the codepoint
+    # level the two encodings collide.
+    #
+    # Empirically though, the *density* of Shan-tone-range chars
+    # (U+1075-U+108A) is bimodal:
+    #
+    #                density of U+1075-U+108A among Myanmar-block chars
+    #   Shan:   99.34% of lines >= 20%       (cluster at ~25-40%)
+    #   Zawgyi:  0.07% of lines >= 20%       (cluster at 1-5%)
+    #
+    # Also: U+1022, U+1079, U+1083, U+1084 appear in Shan but never in
+    # Zawgyi -- presence of any of them is a sufficient (not necessary)
+    # trigger even when density is below threshold.
+    (
+        "shn",
+        [(0x1000, 0x109F)],   # listed for the dominance count
+        0.001,                # we override with a custom predicate
+        lambda counts, text: _is_shan(text),
+    ),
+
     # ----- shared scripts: hand off to ML -----
-    # Myanmar block (Burmese, Shan, Mon, Karen variants, Kachin, Rakhine...)
+    # Myanmar block (Burmese, Mon, Karen variants, Rakhine...)
     (
         "__shared_mymr",
         [
@@ -160,6 +185,35 @@ SCRIPT_RULES: list[tuple] = [
         None,
     ),
 ]
+
+
+# Shan-only codepoints inside the Myanmar block: appear in real Shan
+# text but never in any other Myanmar-block language we support
+# (mya / zgi / ksw / pwo / kvq / mnw all measured 0.000%; kac doesn't
+# count because it's written in Latin in our corpus, not Myanmar block).
+# U+1083 was a tempting candidate but Pwo Karen uses it at 0.022%, so
+# it would cause Pwo->shn misclassification. Excluded.
+_SHAN_ONLY_CODEPOINTS = frozenset({0x1022, 0x1079, 0x1084})
+
+
+def _is_shan(text: str) -> bool:
+    """Decide whether Myanmar-block text is Shan vs Zawgyi/Burmese.
+
+    Trigger if either:
+      (a) any Shan-only codepoint is present (U+1022, U+1079, U+1083,
+          U+1084 -- Zawgyi never uses them); or
+      (b) >= 20% of the Myanmar-block characters fall in the Shan-tone
+          subrange U+1075-U+108A. The Shan/Zawgyi distributions are
+          bimodal here: real Shan clusters at 25-40%, Zawgyi at 1-5%.
+    """
+    mb = [c for c in text if 0x1000 <= ord(c) <= 0x109F]
+    if not mb:
+        return False
+    for c in mb:
+        if ord(c) in _SHAN_ONLY_CODEPOINTS:
+            return True
+    tone_chars = sum(1 for c in mb if 0x1075 <= ord(c) <= 0x108A)
+    return tone_chars / len(mb) >= 0.20
 
 
 def _count_chars_in(text: str, blocks: list[tuple[int, int]]) -> int:
