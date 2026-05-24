@@ -30,17 +30,17 @@ BPE_LANGS = [
     # SE Asian minority
     "mya", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn",
     # broader SE / South Asian
-    "eng", "hin", "ind", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
+    "eng", "hin", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
     # regional / script variants
-    "ban", "hnn", "kac", "mnw", "nod", "rki", "sun", "zho_hant",
+    "ban", "hnn", "kac", "mnw", "sun",
 ]
 DETECT_LABELS = [
     # SE Asian minority
     "mya", "zgi", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn",
     # broader SE / South Asian
-    "eng", "hin", "ind", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
+    "eng", "hin", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
     # regional / script variants
-    "ban", "hnn", "kac", "mnw", "nod", "rki", "sun", "zho_hant",
+    "ban", "hnn", "kac", "mnw", "sun",
 ]
 
 LANG_NAMES: dict[str, str] = {
@@ -58,7 +58,6 @@ LANG_NAMES: dict[str, str] = {
     # broader SE / South Asian
     "eng": "English",
     "hin": "Hindi",
-    "ind": "Indonesian",
     "khm": "Khmer",
     "lao": "Lao",
     "msa": "Malay",
@@ -66,16 +65,13 @@ LANG_NAMES: dict[str, str] = {
     "tgl": "Tagalog",
     "tha": "Thai",
     "vie": "Vietnamese",
-    "zho": "Chinese (Simplified)",
+    "zho": "Chinese",
     # regional / script variants
     "ban": "Balinese",
     "hnn": "Hanunoo",
     "kac": "Jingphaw (Kachin)",
     "mnw": "Mon",
-    "nod": "Lanna (Northern Thai)",
-    "rki": "Rakhine (Arakan)",
     "sun": "Sundanese",
-    "zho_hant": "Chinese (Traditional)",
     # special BPE code
     "multi": "Multilingual",
     # legacy syllable-tokenizer lang codes
@@ -149,11 +145,6 @@ SAMPLES: dict[str, list[str]] = {
         "धन्यवाद",
         "आदि में परमेश्वर ने आकाश और पृथ्वी की सृष्टि की।",
     ],
-    "ind": [
-        "Selamat pagi",
-        "Terima kasih banyak",
-        "Pada mulanya Allah menciptakan langit dan bumi.",
-    ],
     "khm": [
         "សួស្ដី",
         "អរគុណច្រើន",
@@ -198,6 +189,22 @@ SAMPLES: dict[str, list[str]] = {
         "နူ ဝဳကဳပဳဒဳယာဏအ် ဒုင်တၠုင်ဏာရအဴ။",
         "ပြကိုဟ်ဗိသ္တာ မသက္ကုင္ၚုဟ်မး ဝွံ ညးလဵုဟွံဟီု လုပ်ပလေဝ်ဒါန် ချူမာန်ရ။",
         "ပရူပရာ သီုဖအိုတ် ဂှ် နဘာသာမန် ဗှ်လ္ၚတ်ကေတ်မာန်ရ။",
+    ],
+    "ban": [
+        "Sanun ceninge idup, tan urungan cening lakar negen karma palan raos ceninge.",
+        "Duking purwakala Ida Sang Hyang Widi Wasa ngwentenang akasa miwah pretiwine.",
+    ],
+    "hnn": [
+        "Sa kabag-u linalang Diyus ti langit hanggan ti kalibutan.",
+        "Dahil alam nida tanan ti Panginuun ti nagbuwat inda.",
+    ],
+    "kac": [
+        "Shawng ningpawt e, Karai Kasang gaw ninggawn tawa shingra hpe hpan da ai.",
+        "Dai Madu Israela a Karai Kasang gaw",
+    ],
+    "sun": [
+        "Nalika Allah nyiptakeun jagat raya,",
+        "Sagala rupa di Israil anu geus dibaktikeun ka Kami tanpa sarat, eta oge keur maneh.",
     ],
 }
 
@@ -474,11 +481,11 @@ def index():
                 {"label": "Myanmar-region",
                  "langs": ["mya", "zgi", "ksw", "pwo", "kvq",
                            "cnh", "cfm", "ctd", "eky", "shn",
-                           "kac", "rki", "mnw"]},
+                           "kac", "mnw"]},
                 {"label": "SE & South Asia",
-                 "langs": ["eng", "hin", "ind", "khm", "lao",
+                 "langs": ["eng", "hin", "khm", "lao",
                            "msa", "tam", "tgl", "tha", "vie", "zho",
-                           "zho_hant", "nod", "ban", "sun", "hnn"]},
+                           "ban", "sun", "hnn"]},
             ])))
     return page
 

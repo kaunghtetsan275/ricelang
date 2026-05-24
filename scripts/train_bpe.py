@@ -31,9 +31,9 @@ LANGS = [
     # original SE-Asian set
     "cfm", "cnh", "ctd", "eky", "ksw", "kvq", "mya", "pwo", "shn",
     # broader SE / South Asian set
-    "eng", "hin", "ind", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
+    "eng", "hin", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
     # regional / additional script variants
-    "ban", "hnn", "kac", "mnw", "nod", "rki", "sun", "zho_hant",
+    "ban", "hnn", "kac", "mnw", "sun",
 ]
 
 

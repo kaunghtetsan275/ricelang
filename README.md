@@ -21,7 +21,7 @@ Detects Burmese (Unicode and Zawgyi encodings), three Karen variants
 (S'gaw, Pwo, Geba), three Chin variants (Hakha, Falam, Tedim), Eastern
 Kayah, and Shan. Labels follow ISO 639-3 codes.
 
-29 labels in three groups:
+25 labels in three groups:
 
 **Myanmar-region minority languages** (original focus):
 
@@ -33,46 +33,52 @@ Kayah, and Shan. Labels follow ISO 639-3 codes.
 | `pwo`  | Pwo Western Karen         | | `eky`  | Eastern Kayah             |
 | `kvq`  | Geba Karen                | | `shn`  | Shan (Tai Yai)            |
 | `kac`  | Jingphaw (Kachin)         | | `mnw`  | Mon                       |
-| `rki`  | Rakhine (Arakan)          | |        |                           |
 
-**Broader SE / South Asian** (added in 0.3.x via YouVersion):
+**Broader SE / South Asian** (via YouVersion):
 
 | Label  | Language     | | Label  | Language          |
 | ------ | ------------ |-| ------ | ----------------- |
 | `eng`  | English      | | `tam`  | Tamil             |
 | `hin`  | Hindi        | | `tgl`  | Tagalog           |
-| `ind`  | Indonesian   | | `tha`  | Thai              |
-| `khm`  | Khmer        | | `vie`  | Vietnamese        |
-| `lao`  | Lao          | | `zho`  | Chinese (Simp.)   |
-| `msa`  | Malay        | | `zho_hant` | Chinese (Trad.) |
+| `khm`  | Khmer        | | `tha`  | Thai              |
+| `lao`  | Lao          | | `vie`  | Vietnamese        |
+| `msa`  | Malay        | | `zho`  | Chinese           |
 
 **Regional & script variants**:
 
 | Label  | Language                       |
 | ------ | ------------------------------ |
-| `nod`  | Lanna / Northern Thai          |
 | `ban`  | Balinese                       |
 | `sun`  | Sundanese                      |
 | `hnn`  | Hanunoo                        |
 
-Mon (`mnw`) was added in 0.3.x via the Mon Wikipedia dump (135k
-paragraphs); all other labels are sourced from YouVersion Bible scrapes.
+Mon (`mnw`) is sourced from the Mon Wikipedia dump (135k paragraphs);
+all other labels come from YouVersion Bible scrapes.
 
-**Accuracy** (held-out validation, 79,494 examples across 29 labels):
-overall **P@1 = 99.25%**. 7 labels score 100%, 19 more score 99.0–99.9%.
-The known weak spots:
+**Accuracy** (held-out validation, 71,833 examples across 25 labels):
+overall **P@1 = 99.85%**. 12 labels score 100%, 13 more score 99.2–99.97%.
+Lowest is `cnh` at 99.22%.
 
-- **`ind ↔ msa`** (~92% each direction) — Indonesian and Malay share
-  ~80% of their vocabulary; a real linguistic ambiguity.
-- **`zho ↔ zho_hant`** (~99% each direction) — Simplified vs
-  Traditional Chinese share most characters; tiny symmetric cross-
-  confusion.
+**Languages deliberately not supported** because text-only character-
+n-gram detection cannot meaningfully distinguish them from a sibling
+language already in the set (the text is often *literally identical*):
 
-To keep the model from defaulting to over-represented classes on
-ambiguous input, training caps each label at 40k examples by default
-(`--cap-per-label`). Without the cap, `mnw` (Mon Wikipedia, 135k
-paragraphs) would otherwise dominate short-text decisions in the
-Myanmar-script family.
+- **Indonesian (`ind`)** — shares ~80% vocabulary with `msa`; e.g.
+  "Terima kasih" is grammatical in both.
+- **Rakhine (`rki`)** — uses the same Myanmar script as `mya` and many
+  short phrases are interchangeable.
+- **Chinese Traditional (`zho_hant`)** — most characters are identical
+  to Simplified; the writing-system difference doesn't show up in
+  every text. Use `zho` for both for now.
+
+The right place to disambiguate these is in the calling application
+using context the model doesn't have (region, user metadata,
+surrounding text).
+
+To keep over-represented classes from biasing short-text decisions,
+training caps each label at 40k examples (`--cap-per-label` in
+`scripts/build_corpus.py`). Without it, `mnw` (135k paragraphs) would
+dominate short Myanmar-script input.
 
 ```sh
 import ricelang as pds
@@ -176,7 +182,11 @@ Languages to add next, grouped by region. Each needs a sourcing decision
 - _(no remaining gaps tracked here — see the support table above)_
 
 **Thailand region**
-- Lanna / Northern Thai in Tai Tham script (`nod`)
+- Lanna / Northern Thai in **Tai Tham** script (`nod`, U+1A20–U+1AAF) —
+  the YouVersion v1907 source uses Thai-script transliteration which is
+  visually indistinguishable from `tha`; the actual Tai Tham orthography
+  exists mostly in scanned monastery manuscripts and a small Wikipedia
+  Incubator project. Needs a different source.
 - Malay in Jawi script (`msa_Arab`)
 
 **Philippines region**
