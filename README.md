@@ -24,7 +24,9 @@ substantially revamped:
 
 **Migrating from `pyidaungsu`**: change `import pyidaungsu as pds` to
 `import ricelang as pds` and most calls work as-is. Detector labels
-changed from `karen`/`mm_uni`/`mm_zg` to ISO codes `ksw`/`mya`/`zgi`.
+changed from `karen`/`mm_uni`/`mm_zg` to `ksw`/`mya`/`zgi`. New labels
+follow ISO 639-3 except `zgi`, which is an encoding marker (Burmese
+written in the legacy Zawgyi font, not a separate language).
 
 ## Installation
 
@@ -38,8 +40,12 @@ uv add ricelang
 
 ### Language detection
 
-Detects 25 languages across South and Southeast Asia (full table below).
-Labels follow ISO 639-3 codes.
+Detects 25 labels across South and Southeast Asia (full table below).
+Labels follow ISO 639-3 codes — with one exception, **`zgi`**, which
+isn't a language but an encoding marker for Burmese text written in the
+legacy non-Unicode Zawgyi font. The underlying language is `mya`; the
+separate label exists so callers can route Zawgyi text through
+`cvt2uni()` before any further NLP.
 
 25 labels in three groups:
 
@@ -48,7 +54,7 @@ Labels follow ISO 639-3 codes.
 | Label  | Language                  | | Label  | Language                  |
 | ------ | ------------------------- |-| ------ | ------------------------- |
 | `mya`  | Burmese (Unicode)         | | `cnh`  | Hakha Chin (Lai)          |
-| `zgi`  | Burmese (Zawgyi)          | | `cfm`  | Falam Chin                |
+| `zgi`† | Burmese (Zawgyi encoding) | | `cfm`  | Falam Chin                |
 | `ksw`  | S'gaw Karen               | | `ctd`  | Tedim Chin                |
 | `pwo`  | Pwo Western Karen         | | `eky`  | Eastern Kayah             |
 | `kvq`  | Geba Karen                | | `shn`  | Shan (Tai Yai)            |
@@ -74,6 +80,11 @@ Labels follow ISO 639-3 codes.
 
 Mon (`mnw`) is sourced from the Mon Wikipedia dump (135k paragraphs);
 all other labels come from YouVersion Bible scrapes.
+
+† `zgi` is the only non-ISO-639-3 label. It's not a language but an
+encoding marker for Burmese text written in the legacy Zawgyi font
+(the underlying language is `mya`). Use `cvt2uni()` to normalize
+Zawgyi text to Unicode before any downstream processing.
 
 **Accuracy** (held-out validation, 71,833 examples across 25 labels):
 overall **P@1 = 99.85%**. 12 labels score 100%, 13 more score 99.2–99.97%.
