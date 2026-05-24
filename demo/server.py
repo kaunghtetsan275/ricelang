@@ -539,19 +539,26 @@ def index():
             .replace("__BPE_OPTS__", "".join(opt(l) for l in BPE_LANGS))
             .replace("__LANG_NAMES_JSON__", json.dumps(LANG_NAMES))
             .replace("__GROUPS_JSON__", json.dumps([
-                {"label": "Myanmar-region",
-                 "langs": ["mya", "zgi", "ksw", "pwo", "kvq",
-                           "cnh", "cfm", "ctd", "eky", "shn",
-                           "kac", "mnw"]},
-                {"label": "SE & South Asia",
-                 "langs": ["eng", "hin", "khm", "lao",
-                           "msa", "tam", "tgl", "tha", "vie", "zho",
-                           "ban", "sun", "hnn"]},
-                {"label": "Free (script-rule)",
-                 "langs": ["kor", "jpn", "ell", "heb", "hye", "kat",
-                           "amh", "sin", "bod", "jav", "cjm", "mni",
-                           "nod", "sat", "khb", "tdd", "mon", "chr",
-                           "vai", "nqo"]},
+                # Grouped by detection method: shared-script labels run the
+                # ML classifier; monopoly-script labels are deterministic
+                # Unicode-block rules and never invoke the model.
+                {"label": "Trained (shared script — ML)",
+                 "langs": [
+                     # Latin-family (10)
+                     "eng", "cnh", "cfm", "ctd", "msa", "tgl", "vie",
+                     "ban", "sun", "hnn",
+                     # Myanmar-block family (8) + Zawgyi encoding marker
+                     "mya", "zgi", "ksw", "pwo", "kvq", "shn", "mnw", "kac",
+                 ]},
+                {"label": "Script-rule (deterministic, no ML)",
+                 "langs": [
+                     # already in the trained set but caught by script rule
+                     "hin", "tam", "tha", "lao", "khm", "eky", "zho",
+                     # freebies added in 0.4.0
+                     "kor", "jpn", "ell", "heb", "hye", "kat", "amh",
+                     "sin", "bod", "jav", "cjm", "mni", "nod", "sat",
+                     "khb", "tdd", "mon", "chr", "vai", "nqo",
+                 ]},
             ])))
     return page
 
