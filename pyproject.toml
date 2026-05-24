@@ -54,6 +54,14 @@ packages = ["ricelang"]
 "ricelang/model/bpe_tha.json" = "ricelang/model/bpe_tha.json"
 "ricelang/model/bpe_vie.json" = "ricelang/model/bpe_vie.json"
 "ricelang/model/bpe_zho.json" = "ricelang/model/bpe_zho.json"
+"ricelang/model/bpe_ban.json" = "ricelang/model/bpe_ban.json"
+"ricelang/model/bpe_hnn.json" = "ricelang/model/bpe_hnn.json"
+"ricelang/model/bpe_kac.json" = "ricelang/model/bpe_kac.json"
+"ricelang/model/bpe_mnw.json" = "ricelang/model/bpe_mnw.json"
+"ricelang/model/bpe_nod.json" = "ricelang/model/bpe_nod.json"
+"ricelang/model/bpe_rki.json" = "ricelang/model/bpe_rki.json"
+"ricelang/model/bpe_sun.json" = "ricelang/model/bpe_sun.json"
+"ricelang/model/bpe_zho_hant.json" = "ricelang/model/bpe_zho_hant.json"
 
 [tool.hatch.build.targets.sdist]
 include = ["ricelang", "README.md", "LICENSE"]
@@ -65,6 +73,7 @@ demo = [
 ]
 dev = [
     "beautifulsoup4>=4.14.3",
+    "mwparserfromhell>=0.7.2",
     "pytest>=8",
     "requests>=2.32.5",
     "ruff>=0.6",

@@ -100,6 +100,23 @@ def collect(corpus_dir: Path, synthesize_zg: bool, zg_ratio: float) -> list[tupl
     return examples
 
 
+def cap_per_label(examples: list[tuple[str, str]], cap: int) -> list[tuple[str, str]]:
+    """Subsample any label that exceeds ``cap``. Keeps the class distribution
+    closer to balanced so over-represented sources (e.g. the 135k-paragraph
+    Mon Wikipedia) don't bias the model toward predicting them by default
+    on short or ambiguous input."""
+    by_label: dict[str, list[tuple[str, str]]] = {}
+    for ex in examples:
+        by_label.setdefault(ex[0], []).append(ex)
+    out: list[tuple[str, str]] = []
+    for label, exs in by_label.items():
+        if len(exs) > cap:
+            out += random.sample(exs, cap)
+        else:
+            out += exs
+    return out
+
+
 def write_fasttext(path: Path, examples: list[tuple[str, str]]) -> None:
     with path.open("w", encoding="utf-8") as fh:
         for label, text in examples:
@@ -131,6 +148,9 @@ def main(argv: list[str] | None = None) -> int:
                    help="don't augment training set with truncated copies of each example")
     p.add_argument("--augment-lengths", type=int, nargs="+", default=[10, 20, 40],
                    help="character lengths to truncate to (default: 10 20 40)")
+    p.add_argument("--cap-per-label", type=int, default=40_000,
+                   help="subsample any label with more than this many examples "
+                        "(default 40_000; 0 = no cap)")
     args = p.parse_args(argv)
 
     random.seed(args.seed)
@@ -142,6 +162,11 @@ def main(argv: list[str] | None = None) -> int:
     examples = collect(corpus_dir, args.synthesize_zg, args.zg_ratio)
     print(f"[corpus] collected:")
     print(summarize(examples))
+
+    if args.cap_per_label:
+        examples = cap_per_label(examples, args.cap_per_label)
+        print(f"[cap] subsampled each over-represented label to {args.cap_per_label:,}:")
+        print(summarize(examples))
 
     random.shuffle(examples)
     split = int(len(examples) * (1 - args.valid_fraction))

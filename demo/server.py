@@ -31,12 +31,16 @@ BPE_LANGS = [
     "mya", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn",
     # broader SE / South Asian
     "eng", "hin", "ind", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
+    # regional / script variants
+    "ban", "hnn", "kac", "mnw", "nod", "rki", "sun", "zho_hant",
 ]
 DETECT_LABELS = [
     # SE Asian minority
     "mya", "zgi", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn",
     # broader SE / South Asian
     "eng", "hin", "ind", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
+    # regional / script variants
+    "ban", "hnn", "kac", "mnw", "nod", "rki", "sun", "zho_hant",
 ]
 
 LANG_NAMES: dict[str, str] = {
@@ -62,7 +66,16 @@ LANG_NAMES: dict[str, str] = {
     "tgl": "Tagalog",
     "tha": "Thai",
     "vie": "Vietnamese",
-    "zho": "Chinese",
+    "zho": "Chinese (Simplified)",
+    # regional / script variants
+    "ban": "Balinese",
+    "hnn": "Hanunoo",
+    "kac": "Jingphaw (Kachin)",
+    "mnw": "Mon",
+    "nod": "Lanna (Northern Thai)",
+    "rki": "Rakhine (Arakan)",
+    "sun": "Sundanese",
+    "zho_hant": "Chinese (Traditional)",
     # special BPE code
     "multi": "Multilingual",
     # legacy syllable-tokenizer lang codes
@@ -180,6 +193,11 @@ SAMPLES: dict[str, list[str]] = {
         "你好",
         "谢谢",
         "起初，神创造天地。",
+    ],
+    "mnw": [
+        "နူ ဝဳကဳပဳဒဳယာဏအ် ဒုင်တၠုင်ဏာရအဴ။",
+        "ပြကိုဟ်ဗိသ္တာ မသက္ကုင္ၚုဟ်မး ဝွံ ညးလဵုဟွံဟီု လုပ်ပလေဝ်ဒါန် ချူမာန်ရ။",
+        "ပရူပရာ သီုဖအိုတ် ဂှ် နဘာသာမန် ဗှ်လ္ၚတ်ကေတ်မာန်ရ။",
     ],
 }
 
@@ -455,10 +473,12 @@ def index():
             .replace("__GROUPS_JSON__", json.dumps([
                 {"label": "Myanmar-region",
                  "langs": ["mya", "zgi", "ksw", "pwo", "kvq",
-                           "cnh", "cfm", "ctd", "eky", "shn"]},
+                           "cnh", "cfm", "ctd", "eky", "shn",
+                           "kac", "rki", "mnw"]},
                 {"label": "SE & South Asia",
                  "langs": ["eng", "hin", "ind", "khm", "lao",
-                           "msa", "tam", "tgl", "tha", "vie", "zho"]},
+                           "msa", "tam", "tgl", "tha", "vie", "zho",
+                           "zho_hant", "nod", "ban", "sun", "hnn"]},
             ])))
     return page
 

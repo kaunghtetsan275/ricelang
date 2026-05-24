@@ -141,6 +141,8 @@ def tokenize(text: str, lang: str = "mm", form: Form = "syllable") -> list[str]:
             "mya", "ksw", "pwo", "kvq", "cnh", "cfm", "ctd", "eky", "shn",
             # broader SE / South Asian
             "eng", "hin", "ind", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
+            # regional / script variants
+            "ban", "hnn", "kac", "mnw", "nod", "rki", "sun", "zho_hant",
         } else "multi"
         return _bpe_tokenizer(bpe_lang).encode(text).tokens
 

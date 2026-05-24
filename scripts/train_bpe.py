@@ -30,8 +30,10 @@ from tokenizers import Regex, Tokenizer, models, pre_tokenizers, trainers
 LANGS = [
     # original SE-Asian set
     "cfm", "cnh", "ctd", "eky", "ksw", "kvq", "mya", "pwo", "shn",
-    # broader SE / South Asian set (added in 0.3.x)
+    # broader SE / South Asian set
     "eng", "hin", "ind", "khm", "lao", "msa", "tam", "tgl", "tha", "vie", "zho",
+    # regional / additional script variants
+    "ban", "hnn", "kac", "mnw", "nod", "rki", "sun", "zho_hant",
 ]
 
 
@@ -41,13 +43,21 @@ def _resolve_files(corpus_dir: Path, lang: str) -> list[Path]:
     return sorted(corpus_dir.glob(f"{lang}_*.txt"))
 
 
-def _iter_texts(files: list[Path]):
-    """Yield one text per labeled line, stripping the __label__ prefix."""
+def _iter_texts(files: list[Path], label_filter: str | None = None):
+    """Yield one text per labeled line, stripping the __label__ prefix.
+
+    If ``label_filter`` is given, skip lines whose label doesn't match.
+    Needed when filenames have prefix collisions (e.g. ``zho_*.txt`` glob
+    also matches ``zho_hant_*.txt``).
+    """
+    needed = f"__label__{label_filter} " if label_filter else None
     for path in files:
         with path.open(encoding="utf-8") as fh:
             for line in fh:
                 line = line.rstrip("\n")
                 if not line.startswith("__label__"):
+                    continue
+                if needed is not None and not line.startswith(needed):
                     continue
                 _, _, text = line.partition(" ")
                 if text:
@@ -102,7 +112,13 @@ def train_one(corpus_dir: Path, lang: str, out_dir: Path,
         special_tokens=["<pad>", "<unk>", "<s>", "</s>"],
         show_progress=False,
     )
-    tokenizer.train_from_iterator(_iter_texts(files), trainer=trainer)
+    # For per-language training, restrict to lines actually labeled with
+    # this lang so we don't pull in collisions (e.g. zho_*.txt glob also
+    # matches zho_hant_*.txt). The multilingual model uses every line.
+    label_filter = None if lang == "multi" else lang
+    tokenizer.train_from_iterator(
+        _iter_texts(files, label_filter=label_filter), trainer=trainer
+    )
     tokenizer.save(str(out_path))
     print(f"[bpe {lang}] vocab={tokenizer.get_vocab_size():,}  "
           f"size={out_path.stat().st_size:,} bytes")

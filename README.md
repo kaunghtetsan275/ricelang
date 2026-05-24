@@ -21,44 +21,58 @@ Detects Burmese (Unicode and Zawgyi encodings), three Karen variants
 (S'gaw, Pwo, Geba), three Chin variants (Hakha, Falam, Tedim), Eastern
 Kayah, and Shan. Labels follow ISO 639-3 codes.
 
-21 labels in two groups:
+29 labels in three groups:
 
-**Myanmar-region minority languages** (the original focus):
+**Myanmar-region minority languages** (original focus):
 
-| Label  | Language                  |
-| ------ | ------------------------- |
-| `mya`  | Burmese (Unicode)         |
-| `zgi`  | Burmese (Zawgyi)          |
-| `ksw`  | S'gaw Karen               |
-| `pwo`  | Pwo Western Karen         |
-| `kvq`  | Geba Karen                |
-| `cnh`  | Hakha Chin (Lai)          |
-| `cfm`  | Falam Chin                |
-| `ctd`  | Tedim Chin                |
-| `eky`  | Eastern Kayah             |
-| `shn`  | Shan (Tai Yai)            |
+| Label  | Language                  | | Label  | Language                  |
+| ------ | ------------------------- |-| ------ | ------------------------- |
+| `mya`  | Burmese (Unicode)         | | `cnh`  | Hakha Chin (Lai)          |
+| `zgi`  | Burmese (Zawgyi)          | | `cfm`  | Falam Chin                |
+| `ksw`  | S'gaw Karen               | | `ctd`  | Tedim Chin                |
+| `pwo`  | Pwo Western Karen         | | `eky`  | Eastern Kayah             |
+| `kvq`  | Geba Karen                | | `shn`  | Shan (Tai Yai)            |
+| `kac`  | Jingphaw (Kachin)         | | `mnw`  | Mon                       |
+| `rki`  | Rakhine (Arakan)          | |        |                           |
 
-**Broader SE / South Asian** (added in 0.3.x via YouVersion full-Bible scrapes):
+**Broader SE / South Asian** (added in 0.3.x via YouVersion):
 
-| Label  | Language     | | Label  | Language     |
-| ------ | ------------ |-| ------ | ------------ |
-| `eng`  | English      | | `msa`  | Malay        |
-| `hin`  | Hindi        | | `tam`  | Tamil        |
-| `ind`  | Indonesian   | | `tgl`  | Tagalog      |
-| `khm`  | Khmer        | | `tha`  | Thai         |
-| `lao`  | Lao          | | `vie`  | Vietnamese   |
-|        |              | | `zho`  | Chinese      |
+| Label  | Language     | | Label  | Language          |
+| ------ | ------------ |-| ------ | ----------------- |
+| `eng`  | English      | | `tam`  | Tamil             |
+| `hin`  | Hindi        | | `tgl`  | Tagalog           |
+| `ind`  | Indonesian   | | `tha`  | Thai              |
+| `khm`  | Khmer        | | `vie`  | Vietnamese        |
+| `lao`  | Lao          | | `zho`  | Chinese (Simp.)   |
+| `msa`  | Malay        | | `zho_hant` | Chinese (Trad.) |
 
-Mon detection remains disabled (no training data available). Shan was
-disabled in 0.1.3 due to dirty data and re-enabled in 0.2.0 after the
-shannews.org export was reprocessed.
+**Regional & script variants**:
 
-**Accuracy** (held-out validation, 59,240 examples across 21 labels):
-overall **P@1 = 99.09%**. 17 labels score 100% and 4 score 99.2–99.9%.
-The two notable weak spots are **ind ↔ msa** (~91–93%) — Indonesian and
-Malay share ~80% of their vocabulary so the model genuinely struggles
-to tell them apart on short or scripture-style text; this is a real
-linguistic ambiguity rather than a training issue.
+| Label  | Language                       |
+| ------ | ------------------------------ |
+| `nod`  | Lanna / Northern Thai          |
+| `ban`  | Balinese                       |
+| `sun`  | Sundanese                      |
+| `hnn`  | Hanunoo                        |
+
+Mon (`mnw`) was added in 0.3.x via the Mon Wikipedia dump (135k
+paragraphs); all other labels are sourced from YouVersion Bible scrapes.
+
+**Accuracy** (held-out validation, 79,494 examples across 29 labels):
+overall **P@1 = 99.25%**. 7 labels score 100%, 19 more score 99.0–99.9%.
+The known weak spots:
+
+- **`ind ↔ msa`** (~92% each direction) — Indonesian and Malay share
+  ~80% of their vocabulary; a real linguistic ambiguity.
+- **`zho ↔ zho_hant`** (~99% each direction) — Simplified vs
+  Traditional Chinese share most characters; tiny symmetric cross-
+  confusion.
+
+To keep the model from defaulting to over-represented classes on
+ambiguous input, training caps each label at 40k examples by default
+(`--cap-per-label`). Without the cap, `mnw` (Mon Wikipedia, 135k
+paragraphs) would otherwise dominate short-text decisions in the
+Myanmar-script family.
 
 ```sh
 import ricelang as pds
@@ -159,9 +173,7 @@ Languages to add next, grouped by region. Each needs a sourcing decision
 (YouVersion if a Bible exists, otherwise community/literature corpora):
 
 **Myanmar region**
-- Rakhine / Arakan (`rki`)
-- Mon (`mnw`)
-- Jingphaw / Kachin (`kac`)
+- _(no remaining gaps tracked here — see the support table above)_
 
 **Thailand region**
 - Lanna / Northern Thai in Tai Tham script (`nod`)
