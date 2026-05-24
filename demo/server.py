@@ -539,22 +539,20 @@ def index():
             .replace("__BPE_OPTS__", "".join(opt(l) for l in BPE_LANGS))
             .replace("__LANG_NAMES_JSON__", json.dumps(LANG_NAMES))
             .replace("__GROUPS_JSON__", json.dumps([
-                # Grouped by detection method: shared-script labels run the
-                # ML classifier; monopoly-script labels are deterministic
-                # Unicode-block rules and never invoke the model.
-                {"label": "Trained (shared script — ML)",
-                 "langs": [
-                     # Latin-family (10)
-                     "eng", "cnh", "cfm", "ctd", "msa", "tgl", "vie",
-                     "ban", "sun", "hnn",
-                     # Myanmar-block family (8) + Zawgyi encoding marker
-                     "mya", "zgi", "ksw", "pwo", "kvq", "shn", "mnw", "kac",
-                 ]},
-                {"label": "Script-rule (deterministic, no ML)",
+                # Grouped by the script family the detector handles:
+                #   Latin and Myanmar block need the ML classifier (multiple
+                #   languages share each script). Monopoly scripts are
+                #   deterministic Unicode-block rules and never invoke ML.
+                {"label": "ML · Latin script",
+                 "langs": ["eng", "cnh", "cfm", "ctd", "msa", "tgl", "vie",
+                           "ban", "sun", "hnn"]},
+                {"label": "ML · Myanmar block",
+                 "langs": ["mya", "zgi", "ksw", "pwo", "kvq", "shn", "mnw", "kac"]},
+                {"label": "Script-rule (no ML)",
                  "langs": [
                      # already in the trained set but caught by script rule
                      "hin", "tam", "tha", "lao", "khm", "eky", "zho",
-                     # freebies added in 0.4.0
+                     # 0.4.0 freebies
                      "kor", "jpn", "ell", "heb", "hye", "kat", "amh",
                      "sin", "bod", "jav", "cjm", "mni", "nod", "sat",
                      "khb", "tdd", "mon", "chr", "vai", "nqo",
