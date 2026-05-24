@@ -3,13 +3,12 @@
 NLP library for Southeast Asian and South Asian languages — language
 identification, tokenization, and Zawgyi/Unicode conversion.
 
-## Renamed from `pyidaungsu`
+## Revamped from `pyidaungsu`
 
-This project was previously published as
-[pyidaungsu](https://pypi.org/project/pyidaungsu/) and has been
-substantially revamped:
+This project is a revamp of
+[pyidaungsu](https://pypi.org/project/pyidaungsu/):
 
-- **Renamed** to `ricelang` (PyPI + GitHub + import path).
+- **Revamped** as `ricelang` (PyPI + GitHub + import path).
 - **25 detectable languages** (was 3): added 22 SE/South Asian
   languages, full ISO 639-3 codes throughout.
 - **Better detection model**: fastText with character n-grams, retrained
@@ -22,7 +21,7 @@ substantially revamped:
   models, cleaner public API. Existing function names
   (`detect`, `tokenize`, `cvt2zg`, `cvt2uni`) are preserved.
 
-**Migrating from `pyidaungsu`**: change `import pyidaungsu as pds` to
+**Migrating from the original `pyidaungsu`**: change `import pyidaungsu as pds` to
 `import ricelang as pds` and most calls work as-is. Detector labels
 changed from `karen`/`mm_uni`/`mm_zg` to `ksw`/`mya`/`zgi`. New labels
 follow ISO 639-3 except `zgi`, which is an encoding marker (Burmese
