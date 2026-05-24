@@ -349,11 +349,15 @@ INDEX_HTML = """<!doctype html>
   label{display:inline-block;margin-right:.5rem}
   select,button{padding:.3rem .6rem;border:1px solid #888;border-radius:4px;background:#fff;cursor:pointer}
   button{background:#1d4ed8;color:#fff;border-color:#1d4ed8;margin-top:.5rem}
-  .samples{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.4rem}
+  .samples{display:flex;flex-direction:column;gap:.1rem;margin-bottom:.4rem}
+  .samples .group{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;
+                  padding:.35rem 0;border-bottom:1px dashed #e2e8f0}
+  .samples .group:last-child{border-bottom:none}
+  .samples .group-label{font-size:11px;color:#64748b;font-weight:600;letter-spacing:.02em;
+                        text-transform:uppercase;min-width:11rem}
   .samples button{margin:0;padding:.15rem .55rem;font-size:12px;background:#f1f5f9;color:#334155;
                   border:1px solid #cbd5e1}
   .samples button:hover{background:#e0e7ff;border-color:#1d4ed8;color:#1e3a8a}
-  .samples .label{font-size:12px;color:#666;align-self:center;margin-right:.2rem}
   small{color:#666} a{color:#1d4ed8}
 
   /* result containers */
@@ -425,41 +429,48 @@ const LANG_NAMES = __LANG_NAMES_JSON__;
 const GROUPS = __GROUPS_JSON__;          // [{label, langs}, ...]
 const CONVERT_LANGS = ["mya", "zgi"];
 
-function buildSamples(rowId, inputId, groups) {
+// Map a group's `action` field (or a user-passed default) to a handler
+// that runs *after* the sample text is loaded into the input. Handlers
+// must accept no args and read from the input themselves.
+const ACTIONS = {
+  detect:   () => doDetect(),
+  predict:  () => doPredict(),
+  convert:  () => doConvert("zg"),   // for the convert section's sample row
+  tokenize: () => doTokenize(),
+};
+
+function buildSamples(rowId, inputId, groups, defaultAction) {
   const row = $(rowId);
-  groups.forEach((g, gi) => {
-    if (gi > 0) {
-      const sep = document.createElement("span");
-      sep.style.color = "#cbd5e1";
-      sep.style.margin = "0 .25rem";
-      sep.textContent = "│";
-      row.appendChild(sep);
-    }
+  groups.forEach(g => {
+    const wrap = document.createElement("div");
+    wrap.className = "group";
     if (g.label) {
       const lbl = document.createElement("span");
-      lbl.className = "label";
-      lbl.style.color = "#94a3b8";
-      lbl.style.fontSize = "11px";
-      lbl.textContent = g.label + ":";
-      row.appendChild(lbl);
+      lbl.className = "group-label";
+      lbl.textContent = g.label;
+      wrap.appendChild(lbl);
     }
+    const action = g.action || defaultAction;
     g.langs.forEach(lang => {
       const btn = document.createElement("button");
       btn.textContent = LANG_NAMES[lang] || lang;
-      btn.title = `random ${lang} sample`;
+      btn.title = `random ${lang} sample — auto-runs ${action || "(no action)"}`;
       btn.onclick = async () => {
         const r = await fetch(`/sample/${lang}`);
         if (!r.ok) return;
         const {text} = await r.json();
         $(inputId).value = text;
+        if (action && ACTIONS[action]) ACTIONS[action]();
       };
-      row.appendChild(btn);
+      wrap.appendChild(btn);
     });
+    row.appendChild(wrap);
   });
 }
-buildSamples("d_samples", "d_in", GROUPS);
-buildSamples("c_samples", "c_in", [{label: null, langs: CONVERT_LANGS}]);
-buildSamples("t_samples", "t_in", GROUPS);
+buildSamples("d_samples", "d_in", GROUPS, "detect");
+buildSamples("c_samples", "c_in",
+             [{label: null, action: "convert", langs: CONVERT_LANGS}]);
+buildSamples("t_samples", "t_in", GROUPS, "tokenize");
 const escape = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 async function post(url, body) {
@@ -539,20 +550,23 @@ def index():
             .replace("__BPE_OPTS__", "".join(opt(l) for l in BPE_LANGS))
             .replace("__LANG_NAMES_JSON__", json.dumps(LANG_NAMES))
             .replace("__GROUPS_JSON__", json.dumps([
-                # Grouped by the script family the detector handles:
-                #   Latin and Myanmar block need the ML classifier (multiple
-                #   languages share each script). Monopoly scripts are
-                #   deterministic Unicode-block rules and never invoke ML.
+                # Grouped by the script family the detector handles. Each
+                # group carries an `action`: clicking a sample button fills
+                # the textarea AND auto-runs that action. ML-classifier
+                # buttons show top-5 predictions (interesting because
+                # there's actually a competition among labels); script-rule
+                # buttons show the single deterministic label.
                 {"label": "ML · Latin script",
+                 "action": "predict",
                  "langs": ["eng", "cnh", "cfm", "ctd", "msa", "tgl", "vie",
                            "ban", "sun", "hnn"]},
                 {"label": "ML · Myanmar block",
+                 "action": "predict",
                  "langs": ["mya", "zgi", "ksw", "pwo", "kvq", "shn", "mnw", "kac"]},
                 {"label": "Script-rule (no ML)",
+                 "action": "detect",
                  "langs": [
-                     # already in the trained set but caught by script rule
                      "hin", "tam", "tha", "lao", "khm", "eky", "zho",
-                     # 0.4.0 freebies
                      "kor", "jpn", "ell", "heb", "hye", "kat", "amh",
                      "sin", "bod", "jav", "cjm", "mni", "nod", "sat",
                      "khb", "tdd", "mon", "chr", "vai", "nqo",
