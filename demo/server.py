@@ -293,7 +293,7 @@ INDEX_HTML = """<!doctype html>
 
 <h2>detect</h2>
 <section>
-  <div class="samples" id="d_samples"><span class="label">sample:</span></div>
+  <div class="samples" id="d_samples"></div>
   <textarea id="d_in">ထမင်းစားပြီးပြီလား</textarea>
   <button onclick="doDetect()">detect</button>
   <button onclick="doPredict()">predict (top 5)</button>
@@ -302,7 +302,7 @@ INDEX_HTML = """<!doctype html>
 
 <h2>convert (Burmese encoding)</h2>
 <section>
-  <div class="samples" id="c_samples"><span class="label">sample:</span></div>
+  <div class="samples" id="c_samples"></div>
   <textarea id="c_in">ထမင်းစားပြီးပြီလား</textarea>
   <button onclick="doConvert('zg')">→ Zawgyi</button>
   <button onclick="doConvert('uni')">→ Unicode</button>
@@ -311,7 +311,7 @@ INDEX_HTML = """<!doctype html>
 
 <h2>tokenize</h2>
 <section>
-  <div class="samples" id="t_samples"><span class="label">sample:</span></div>
+  <div class="samples" id="t_samples"></div>
   <textarea id="t_in">ဖေဖေနဲ့မေမေ၏ကျေးဇူးတရားမှာကြီးမားလှပေသည်</textarea>
   <div style="margin-top:.5rem">
     <label>form:
@@ -335,28 +335,45 @@ const $ = id => document.getElementById(id);
 const val = id => $(id).value;
 const sel = id => $(id).value;
 
-const ALL_LANGS = __ALL_LANGS_JSON__;
 const LANG_NAMES = __LANG_NAMES_JSON__;
+const GROUPS = __GROUPS_JSON__;          // [{label, langs}, ...]
 const CONVERT_LANGS = ["mya", "zgi"];
 
-function buildSamples(rowId, inputId, langs) {
+function buildSamples(rowId, inputId, groups) {
   const row = $(rowId);
-  langs.forEach(lang => {
-    const btn = document.createElement("button");
-    btn.textContent = LANG_NAMES[lang] || lang;
-    btn.title = `random ${lang} sample`;
-    btn.onclick = async () => {
-      const r = await fetch(`/sample/${lang}`);
-      if (!r.ok) return;
-      const {text} = await r.json();
-      $(inputId).value = text;
-    };
-    row.appendChild(btn);
+  groups.forEach((g, gi) => {
+    if (gi > 0) {
+      const sep = document.createElement("span");
+      sep.style.color = "#cbd5e1";
+      sep.style.margin = "0 .25rem";
+      sep.textContent = "│";
+      row.appendChild(sep);
+    }
+    if (g.label) {
+      const lbl = document.createElement("span");
+      lbl.className = "label";
+      lbl.style.color = "#94a3b8";
+      lbl.style.fontSize = "11px";
+      lbl.textContent = g.label + ":";
+      row.appendChild(lbl);
+    }
+    g.langs.forEach(lang => {
+      const btn = document.createElement("button");
+      btn.textContent = LANG_NAMES[lang] || lang;
+      btn.title = `random ${lang} sample`;
+      btn.onclick = async () => {
+        const r = await fetch(`/sample/${lang}`);
+        if (!r.ok) return;
+        const {text} = await r.json();
+        $(inputId).value = text;
+      };
+      row.appendChild(btn);
+    });
   });
 }
-buildSamples("d_samples", "d_in", ALL_LANGS);
-buildSamples("c_samples", "c_in", CONVERT_LANGS);
-buildSamples("t_samples", "t_in", ALL_LANGS);
+buildSamples("d_samples", "d_in", GROUPS);
+buildSamples("c_samples", "c_in", [{label: null, langs: CONVERT_LANGS}]);
+buildSamples("t_samples", "t_in", GROUPS);
 const escape = s => s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 async function post(url, body) {
@@ -434,8 +451,15 @@ def index():
             .replace("__VERSION__", rl.__version__)
             .replace("__SYL_OPTS__", "".join(opt(l) for l in SYLLABLE_LANGS))
             .replace("__BPE_OPTS__", "".join(opt(l) for l in BPE_LANGS))
-            .replace("__ALL_LANGS_JSON__", json.dumps(sorted(SAMPLES)))
-            .replace("__LANG_NAMES_JSON__", json.dumps(LANG_NAMES)))
+            .replace("__LANG_NAMES_JSON__", json.dumps(LANG_NAMES))
+            .replace("__GROUPS_JSON__", json.dumps([
+                {"label": "Myanmar-region",
+                 "langs": ["mya", "zgi", "ksw", "pwo", "kvq",
+                           "cnh", "cfm", "ctd", "eky", "shn"]},
+                {"label": "SE & South Asia",
+                 "langs": ["eng", "hin", "ind", "khm", "lao",
+                           "msa", "tam", "tgl", "tha", "vie", "zho"]},
+            ])))
     return page
 
 
