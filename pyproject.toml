@@ -1,7 +1,7 @@
 [project]
 name = "ricelang"
-version = "0.3.0"
-description = "Language identification and tokenization for Southeast Asian languages (Burmese, Karen variants, Chin variants, Eastern Kayah, Shan)"
+version = "0.3.1"
+description = "Language identification and tokenization for Southeast Asian languages (Burmese, Karen variants, Chin variants, Eastern Kayah, Shan, etc.) — also exposes a `ricelang` CLI"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Kaung Htet San", email = "kaung@htetsan.me" }]
@@ -18,6 +18,9 @@ dependencies = [
     "python-crfsuite>=0.9.9",
     "tokenizers>=0.22.2",
 ]
+
+[project.scripts]
+ricelang = "ricelang.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/kaunghtetsan275/ricelang"
