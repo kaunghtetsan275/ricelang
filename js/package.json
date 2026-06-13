@@ -1,6 +1,6 @@
 {
   "name": "ricelang",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Regex-based syllable tokenization for Burmese and Myanmar-script ethnic languages (Karen, Mon, Shan). A JS/TS port of the ricelang Python package's syllable tokenizer.",
   "type": "module",
   "main": "./dist/index.cjs",
