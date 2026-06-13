@@ -1,0 +1,53 @@
+{
+  "name": "ricelang",
+  "version": "0.1.0",
+  "description": "Regex-based syllable tokenization for Burmese and Myanmar-script ethnic languages (Karen, Mon, Shan). A JS/TS port of the ricelang Python package's syllable tokenizer.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "test": "node --experimental-strip-types test/parity.test.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "myanmar",
+    "burmese",
+    "karen",
+    "mon",
+    "shan",
+    "syllable",
+    "tokenizer",
+    "tokenization",
+    "nlp",
+    "ricelang",
+    "segmentation"
+  ],
+  "author": "Kaung Htet San <kaung@htetsan.me>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaunghtetsan275/ricelang.git",
+    "directory": "js"
+  },
+  "homepage": "https://github.com/kaunghtetsan275/ricelang/tree/main/js#readme",
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  },
+  "bugs": {
+    "url": "https://github.com/kaunghtetsan275/ricelang/issues"
+  }
+}

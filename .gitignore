@@ -8,3 +8,7 @@ build/
 .ruff_cache/
 data/
 site/
+
+# js package
+js/node_modules/
+js/dist/
