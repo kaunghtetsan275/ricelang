@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "ricelang: Language identification and tokenization for Southeast and South Asian languages"
+abstract: >-
+  NLP library for Southeast Asian and South Asian languages — language
+  identification, tokenization, and Zawgyi/Unicode conversion.
+type: software
+authors:
+  - family-names: San
+    given-names: Kaung Htet
+    email: kaung@htetsan.me
+repository-code: "https://github.com/kaunghtetsan275/ricelang"
+url: "https://kaunghtetsan275.github.io/ricelang/"
+license: MIT
+version: 0.4.3
+keywords:
+  - nlp
+  - language-identification
+  - tokenization
+  - burmese
+  - zawgyi
+  - southeast-asian-languages
+  - south-asian-languages

@@ -333,3 +333,23 @@ metadata (region, user profile) or a different model class.
 - [ ] Add Part-of-Speech (POS) tagger for Burmese
 - [ ] Add Named-entities Recognition (NER) classifier for Burmese
 - [ ] Add thorough documentation
+
+## Citation
+
+If you use `ricelang` in your research or software, please cite it:
+
+```bibtex
+@software{san_ricelang,
+  author  = {San, Kaung Htet},
+  title   = {ricelang: Language identification and tokenization for Southeast and South Asian languages},
+  url     = {https://github.com/kaunghtetsan275/ricelang},
+  version = {0.4.3},
+  license = {MIT}
+}
+```
+
+Or in plain text:
+
+> Kaung Htet San. *ricelang: Language identification and tokenization for
+> Southeast and South Asian languages.* MIT License.
+> <https://github.com/kaunghtetsan275/ricelang>
