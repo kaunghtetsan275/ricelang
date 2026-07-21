@@ -135,7 +135,7 @@ def main(argv: list[str] | None = None) -> int:
             minn=args.minn,
             maxn=args.maxn,
         )
-        print(f"[train] labels: {sorted(l[len(LABEL_PREFIX):] for l in model.get_labels())}")
+        print(f"[train] labels: {sorted(label[len(LABEL_PREFIX):] for label in model.get_labels())}")
 
         if valid_path is not None:
             n, p_at_1, r_at_1 = model.test(str(valid_path))

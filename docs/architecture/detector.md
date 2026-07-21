@@ -91,5 +91,5 @@ Adding a new monopoly-script language is one row — find the Unicode block
 (e.g. Adlam at U+1E900–U+1E95F) and add:
 
 ```python
-("ff",  [(0x1E900, 0x1E95F)], 0.30, None),    # Fulani (Adlam)
+("ful", [(0x1E900, 0x1E95F)], 0.30, None),    # Fulani (Adlam)
 ```

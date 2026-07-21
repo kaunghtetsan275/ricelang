@@ -60,7 +60,10 @@ def _cmd_detect(args):
 def _cmd_predict(args):
     text = _read(args.text)
     labels, probs = rl.predict(text, k=args.k)
-    preds = [{"label": l[len("__label__"):], "prob": float(p)} for l, p in zip(labels, probs)]
+    preds = [
+        {"label": label[len("__label__"):], "prob": float(prob)}
+        for label, prob in zip(labels, probs)
+    ]
     if args.json:
         _emit({"predictions": preds}, True)
     else:

@@ -127,7 +127,7 @@ def summarize(examples: list[tuple[str, str]]) -> str:
     counts: dict[str, int] = {}
     for label, _ in examples:
         counts[label] = counts.get(label, 0) + 1
-    width = max(len(l) for l in counts)
+    width = max(len(label) for label in counts)
     lines = [f"  {label.ljust(width)}  {n:>7,}" for label, n in sorted(counts.items())]
     lines.append(f"  {'total'.ljust(width)}  {len(examples):>7,}")
     return "\n".join(lines)
@@ -160,7 +160,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"[corpus] reading from {corpus_dir}")
     examples = collect(corpus_dir, args.synthesize_zg, args.zg_ratio)
-    print(f"[corpus] collected:")
+    print("[corpus] collected:")
     print(summarize(examples))
 
     if args.cap_per_label:

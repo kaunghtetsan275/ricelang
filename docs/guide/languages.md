@@ -75,7 +75,7 @@ needed. Accurate by construction (deterministic).
 | `nqo` | N'Ko | N'Ko |
 | `mon` | Mongolian (traditional script) | Mongolian |
 | `vai` | Vai | Vai |
-| `ff` | Fulani (Adlam) | Adlam |
+| `ful` | Fulani (Adlam) | Adlam |
 | `mww` | Hmong | Pahawh Hmong |
 | `bax` | Bamum | Bamum |
 | `lep` | Lepcha | Lepcha |

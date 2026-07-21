@@ -34,7 +34,7 @@ GitHub releases mirror this changelog and link to the diffs:
   fastText classifier only fires for shared scripts (Latin + Myanmar block).
 - **27 new monopoly-script labels** added with no training data: `kor`,
   `jpn`, `ell`, `heb`, `hye`, `kat`, `amh`, `sin`, `bod`, `chr`, `nqo`,
-  `mon`, `vai`, `ff`, `mww`, `bax`, `lep`, `lif`, `saz`, `bug`, `jav`,
+  `mon`, `vai`, `ful`, `mww`, `bax`, `lep`, `lif`, `saz`, `bug`, `jav`,
   `cjm`, `mni`, `nod`, `sat`, `khb`, `tdd`.
 - **Out-of-scope text returns `None`** instead of a confidently-wrong label.
 - 50+ supported labels total.

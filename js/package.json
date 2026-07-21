@@ -3,6 +3,10 @@
   "version": "0.1.1",
   "description": "Regex-based syllable tokenization for Burmese and Myanmar-script ethnic languages (Karen, Mon, Shan). A JS/TS port of the ricelang Python package's syllable tokenizer.",
   "type": "module",
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": ">=22.6.0"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",

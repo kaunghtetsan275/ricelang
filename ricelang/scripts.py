@@ -104,7 +104,7 @@ SCRIPT_RULES: list[tuple] = [
     ("nqo", [(0x07C0, 0x07FF)], 0.30, None),                      # N'Ko (Mande)
     ("mon", [(0x1800, 0x18AF)], 0.30, None),                      # Mongolian (traditional)
     ("vai", [(0xA500, 0xA63F)], 0.30, None),                      # Vai
-    ("ff",  [(0x1E900, 0x1E95F)], 0.30, None),                    # Adlam (Fulani)
+    ("ful", [(0x1E900, 0x1E95F)], 0.30, None),                    # Adlam (Fulani)
     ("mww", [(0x16B00, 0x16B8F)], 0.30, None),                    # Pahawh Hmong
     ("bax", [(0xA6A0, 0xA6FF)], 0.30, None),                      # Bamum
     ("lep", [(0x1C00, 0x1C4F)], 0.30, None),                      # Lepcha

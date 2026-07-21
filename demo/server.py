@@ -43,7 +43,7 @@ DETECT_LABELS = [
     "ban", "hnn", "kac", "mnw", "sun",
     # script-monopoly freebies (Unicode-range detection, no ML)
     "kor", "jpn", "ell", "heb", "hye", "kat", "amh", "sin", "bod",
-    "chr", "nqo", "mon", "vai", "ff", "mww", "bax", "lep", "lif",
+    "chr", "nqo", "mon", "vai", "ful", "mww", "bax", "lep", "lif",
     "saz", "bug", "jav", "cjm", "mni", "nod", "sat", "khb", "tdd",
 ]
 
@@ -90,7 +90,7 @@ LANG_NAMES: dict[str, str] = {
     "nqo": "N'Ko",
     "mon": "Mongolian (script)",
     "vai": "Vai",
-    "ff":  "Fulani (Adlam)",
+    "ful": "Fulani (Adlam)",
     "mww": "Hmong (Pahawh)",
     "bax": "Bamum",
     "lep": "Lepcha",
@@ -106,12 +106,20 @@ LANG_NAMES: dict[str, str] = {
     "tdd": "Tai Nüa",
     # special BPE code
     "multi": "Multilingual",
-    # legacy syllable-tokenizer lang codes
+}
+
+SYLLABLE_LANG_NAMES: dict[str, str] = {
     "mm": "Burmese",
     "karen": "Karen",
     "mon": "Mon",
     "shan": "Shan",
 }
+
+
+def lang_name(code: str, context: str = "detect") -> str:
+    if context == "syllable":
+        return SYLLABLE_LANG_NAMES.get(code, code)
+    return LANG_NAMES.get(code, code)
 
 # Curated short samples — one ~hello/short phrase + one longer sentence per
 # language. The /sample/{lang} endpoint picks one at random.
@@ -260,7 +268,7 @@ SAMPLES: dict[str, list[str]] = {
     "khb": ["ᦌᦱᧈᦟᦴᧉᧁᦱᧈ"],
     "tdd": ["ᥑᥩᥒᥱᥖᥬᥱ"],
     "vai": ["ꕒꕎ"],
-    "ff":  ["𞤧𞤢𞤤𞤢𞥄𞤥"],
+    "ful": ["𞤧𞤢𞤤𞤢𞥄𞤥"],
     "mww": ["𖬓𖬰𖬪𖬰𖬢"],
     "bax": ["ꚠꚡ"],
     "lep": ["ᰀᰕᰒ"],
@@ -312,8 +320,8 @@ def detect(body: TextIn):
 def predict(body: PredictIn):
     labels, probs = rl.predict(body.text, k=body.k)
     out = [
-        {"label": l[len("__label__"):], "prob": float(p)}
-        for l, p in zip(labels, probs)
+        {"label": label[len("__label__"):], "prob": float(prob)}
+        for label, prob in zip(labels, probs)
     ]
     return {"predictions": out}
 
@@ -677,14 +685,16 @@ async function doTokenize() {
 @app.get("/", response_class=HTMLResponse)
 def index():
     import json
-    def opt(code: str) -> str:
-        name = LANG_NAMES.get(code, code)
+
+    def opt(code: str, context: str = "detect") -> str:
+        name = lang_name(code, context=context)
         # "Name (code)" so users see both the human name and the API value
         return f'<option value="{code}">{name} ({code})</option>'
+
     page = (INDEX_HTML
             .replace("__VERSION__", rl.__version__)
-            .replace("__SYL_OPTS__", "".join(opt(l) for l in SYLLABLE_LANGS))
-            .replace("__BPE_OPTS__", "".join(opt(l) for l in BPE_LANGS))
+            .replace("__SYL_OPTS__", "".join(opt(code, "syllable") for code in SYLLABLE_LANGS))
+            .replace("__BPE_OPTS__", "".join(opt(code, "bpe") for code in BPE_LANGS))
             .replace("__LANG_NAMES_JSON__", json.dumps(LANG_NAMES))
             .replace("__GROUPS_JSON__", json.dumps([
                 # Grouped by the script family the detector handles. Each
@@ -709,7 +719,7 @@ def index():
                      "hin", "tam", "tha", "lao", "khm", "eky", "zho",
                      "kor", "jpn", "ell", "heb", "hye", "kat", "amh",
                      "sin", "bod", "jav", "cjm", "mni", "nod", "sat",
-                     "khb", "tdd", "mon", "chr", "vai", "nqo",
+                     "khb", "tdd", "mon", "chr", "vai", "nqo", "ful",
                  ]},
             ])))
     return page
