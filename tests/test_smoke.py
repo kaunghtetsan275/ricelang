@@ -68,6 +68,7 @@ def test_detect_script_monopoly_freebies():
         ("amh", "ሰላም እንዴት ነህ"),
         ("sin", "ආයුබෝවන්"),
         ("bod", "བཀྲ་ཤིས་བདེ་ལེགས།"),
+        ("ful", "𞤧𞤢𞤤𞤢𞥄𞤥"),
     ]
     for expected, text in cases:
         assert pds.detect(text) == expected, f"{expected!r} text predicted {pds.detect(text)!r}"

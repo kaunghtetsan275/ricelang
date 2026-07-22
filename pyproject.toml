@@ -1,6 +1,6 @@
 [project]
 name = "ricelang"
-version = "0.4.3"
+version = "0.5.0"
 description = "Language identification and tokenization for Southeast Asian languages (Burmese, Karen variants, Chin variants, Eastern Kayah, Shan, etc.) — also exposes a `ricelang` CLI"
 readme = "README.md"
 license = { file = "LICENSE" }

@@ -15,7 +15,7 @@ Returns an ISO 639-3 label, or `fallback` if no rule fires and the text isn't
 in a supported shared script.
 
 ```python
-rl.detect("hello")                        # might return 'eng' if Latin-script ML fires
+rl.detect("hello")                        # Latin-script ML fires; short text may be ambiguous
 rl.detect("🎉🎉🎉")                       # None
 rl.detect("🎉🎉🎉", fallback="unknown")   # 'unknown'
 ```

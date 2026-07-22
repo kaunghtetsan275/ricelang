@@ -343,7 +343,7 @@ If you use `ricelang` in your research or software, please cite it:
   author  = {San, Kaung Htet},
   title   = {ricelang: Language identification and tokenization for Southeast and South Asian languages},
   url     = {https://github.com/kaunghtetsan275/ricelang},
-  version = {0.4.3},
+  version = {0.5.0},
   license = {MIT}
 }
 ```

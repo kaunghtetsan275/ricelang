@@ -52,7 +52,7 @@ rl.cvt2uni("ထမင္းစားၿပီးၿပီလား")        # �
 
 ```sh
 ricelang detect "ထမင်းစားပြီးပြီလား"      # mya
-echo "hello" | ricelang detect -          # None  (no rule for English-only short text)
+echo "hello" | ricelang detect -          # cnh  (Latin text routes to the classifier)
 ```
 
 ## When to use ricelang
