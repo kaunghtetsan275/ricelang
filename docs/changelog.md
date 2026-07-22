@@ -3,6 +3,17 @@
 GitHub releases mirror this changelog and link to the diffs:
 <https://github.com/kaunghtetsan275/ricelang/releases>.
 
+## 0.5.0 — Audit fixes and CI hardening
+
+- Changed the Adlam / Fulani script-rule label from `ff` to ISO-639-3
+  `ful`, keeping the public label contract consistent.
+- Fixed demo metadata so detector label `mon` means Mongolian script while
+  syllable-tokenizer `mon` still means Mon.
+- Refreshed the `uv.lock` package version and added locked uv checks to CI.
+- Added Ruff and JS package build/test coverage to CI.
+- Corrected Latin short-text documentation and added regression tests for
+  the audited behavior.
+
 ## 0.4.3 — Documentation site
 
 - New mkdocs-material documentation site at

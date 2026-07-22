@@ -12,7 +12,7 @@ authors:
 repository-code: "https://github.com/kaunghtetsan275/ricelang"
 url: "https://kaunghtetsan275.github.io/ricelang/"
 license: MIT
-version: 0.4.3
+version: 0.5.0
 keywords:
   - nlp
   - language-identification

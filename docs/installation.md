@@ -25,7 +25,7 @@ command-line tool.
 
 ```sh
 ricelang version
-# 0.4.3
+# 0.5.0
 
 python -c "import ricelang as rl; print(rl.detect('မင်္ဂလာပါ'))"
 # mya

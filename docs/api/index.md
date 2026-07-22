@@ -38,7 +38,7 @@ with the original pyidaungsu API.
 
 ### `ricelang.__version__`
 
-The installed library version, e.g. `"0.4.3"`.
+The installed library version, e.g. `"0.5.0"`.
 
 ## Lower-level utilities
 
