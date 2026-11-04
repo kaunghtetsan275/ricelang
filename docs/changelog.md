@@ -3,6 +3,13 @@
 GitHub releases mirror this changelog and link to the diffs:
 <https://github.com/kaunghtetsan275/ricelang/releases>.
 
+## Unreleased — Drop Python 3.10
+
+- Bumped `requires-python` from `>=3.10` to `>=3.11`.
+- This clears 17 Dependabot alerts (1 high, 12 medium, 4 low) on filelock.
+  The fix, filelock 4.2.1, requires Python 3.11+ and has no 3.10 backport.
+- Python 3.10 has been EOL since October 2026.
+
 ## 0.5.0 — Audit fixes and CI hardening
 
 - Changed the Adlam / Fulani script-rule label from `ff` to ISO-639-3
