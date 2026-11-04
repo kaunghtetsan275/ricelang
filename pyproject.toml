@@ -5,7 +5,7 @@ description = "Language identification and tokenization for Southeast Asian lang
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Kaung Htet San", email = "kaung@htetsan.me" }]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",

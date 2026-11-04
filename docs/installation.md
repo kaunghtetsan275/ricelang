@@ -1,6 +1,6 @@
 # Installation
 
-ricelang requires **Python 3.10+** and runs on Linux, macOS, and Windows. The
+ricelang requires **Python 3.11+** and runs on Linux, macOS, and Windows. The
 package ships a bundled fastText detector model and 25 BPE tokenizers, totalling
 ~13 MB.
 
@@ -78,6 +78,5 @@ ls dist/
 |---|---|
 | 3.13 | ⚠ untested — fasttext-wheel has no 3.13 Linux wheel yet |
 | 3.12 | ✓ tested in CI |
-| 3.11 | ✓ tested in CI |
-| 3.10 | ✓ tested in CI (minimum) |
-| ≤ 3.9 | ✗ unsupported — EOL October 2025, and patched dep versions don't backport |
+| 3.11 | ✓ tested in CI (minimum) |
+| ≤ 3.10 | ✗ unsupported — EOL October 2026, and patched dep versions don't backport |
