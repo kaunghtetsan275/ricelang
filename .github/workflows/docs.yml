@@ -6,6 +6,7 @@ on:
     paths:
       - "docs/**"
       - "mkdocs.yml"
+      - "uv.lock"         # dependency bumps change the built site
       - "ricelang/**"     # docstrings feed mkdocstrings
       - ".github/workflows/docs.yml"
   workflow_dispatch:
